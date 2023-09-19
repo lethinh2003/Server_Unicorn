@@ -1,7 +1,8 @@
 const catchAsync = require("../utils/catch_async");
-const AppError = require("../utils/app_error");
+const { BadRequestError, UnauthorizedError, NotFoundError } = require("../utils/app_error");
 const AuthService = require("../services/auth.service");
-const KeyService = require("../services/key.service");
+const KeysService = require("../services/keys.service");
+const { USER_MESSAGES } = require("../configs/config.user.messages");
 const HEADER = {
   CLIENT_ID: "x-client-id",
   AUTHORIZATION: "authorization",
@@ -11,23 +12,22 @@ class AuthController {
   protect = catchAsync(async (req, res, next) => {
     const userId = req.headers[HEADER.CLIENT_ID];
     if (!userId) {
-      return next(new AppError("Vui lòng đăng nhập để tiếp tục", 400));
+      return next(new UnauthorizedError(USER_MESSAGES.LOGIN_REQUIRED));
     }
-    const keyStore = await KeyService.findByUserID({
+    const keyStore = await KeysService.findByUserID({
       userId,
     });
     if (!keyStore) {
-      return next(new AppError("Vui lòng đăng nhập để tiếp tục", 400));
+      return next(new UnauthorizedError(USER_MESSAGES.LOGIN_REQUIRED));
     }
     let accessToken = req.headers[HEADER.AUTHORIZATION];
     if (!accessToken || !accessToken.startsWith("Bearer")) {
-      return next(new AppError("Vui lòng đăng nhập để tiếp tục", 400));
+      return next(new UnauthorizedError(USER_MESSAGES.LOGIN_REQUIRED));
     }
     accessToken = accessToken.split(" ")[1];
-    const user = await AuthService.validateToken({ accessToken, publicKey: keyStore.publicKey, userId });
+    const user = await AuthService.validateToken({ accessToken, publicKey: keyStore.public_key, userId });
     req.user = user;
     req.keyStore = keyStore;
-
     next();
   });
 

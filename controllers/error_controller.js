@@ -51,18 +51,21 @@ const sendErrorProd = (err, res) => {
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
+  if (process.env.NODE_ENV === "development") {
+    sendErrorDev(err, res);
+  } else {
+    // let error = JSON.parse(JSON.stringify(err));
+    let error = err;
+    if (error.name === "CastError") {
+      error = handleCastErrorDB(error);
+    }
+    if (error.code === 11000) {
+      error = handleDuplicateFieldsDB(error);
+    }
+    if (error.name === "ValidationError") {
+      error = handleValidationErrorDB(error);
+    }
 
-  // let error = JSON.parse(JSON.stringify(err));
-  let error = err;
-  if (error.name === "CastError") {
-    error = handleCastErrorDB(error);
+    sendErrorProd(error, res);
   }
-  if (error.code === 11000) {
-    error = handleDuplicateFieldsDB(error);
-  }
-  if (error.name === "ValidationError") {
-    error = handleValidationErrorDB(error);
-  }
-
-  sendErrorProd(error, res);
 };

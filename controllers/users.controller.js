@@ -18,6 +18,11 @@ class UsersController {
     if (!email || !password || !birthday || !gender) {
       return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
     }
+    // Check email is exist
+    const findUser = await UsersService.findByEmail({ email });
+    if (findUser) {
+      return next(new BadRequestError(USER_MESSAGES.EMAIL_EXIST_DB));
+    }
     const result = await UsersService.createUser({ email, password, birthday, gender });
 
     return new CreatedResponse({ message: USER_MESSAGES.SIGNUP_SUCCESS, data: selectFields({ fields: ["email"], object: result }) }).send(
@@ -72,7 +77,84 @@ class UsersController {
       privateKey,
     });
 
-    return new OkResponse({ message: USER_MESSAGES.LOGIN_SUCCESS, data: { accessToken, refreshToken, expireAccessToken } }).send(res);
+    return new OkResponse({ message: USER_MESSAGES.LOGIN_SUCCESS, data: { token: { accessToken, refreshToken, expireAccessToken } } }).send(
+      res
+    );
+  });
+  handleRefreshToken = catchAsync(async (req, res, next) => {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
+    }
+
+    // Check refresh_token in black list (refresh_tokens_used)
+    const checkTokenUsed = await KeysService.findByRefreshTokensUsed({
+      refreshToken,
+    });
+    if (checkTokenUsed) {
+      // Delete current Keys -> Log out user
+      await KeysService.deleteByID({
+        ID: checkTokenUsed._id,
+      });
+      return next(new BadRequestError(USER_MESSAGES.COMMON_HACKED_ERROR));
+    }
+
+    // Find Key store current refresh_token
+    const findKeyStore = await KeysService.findByRefreshToken({
+      refreshToken,
+    });
+    if (!findKeyStore) {
+      return next(new BadRequestError(USER_MESSAGES.COMMON_HACKED_ERROR));
+    }
+
+    // Create new access_token, refresh_token from current key secret
+    const {
+      accessToken,
+      refreshToken: newRefreshToken,
+      expireAccessToken,
+    } = createToken({
+      payload: { email: findKeyStore.user.email, role: findKeyStore.user.role, id: findKeyStore.user._id.toString() },
+      publicKey: findKeyStore.public_key,
+      privateKey: findKeyStore.private_key,
+    });
+    // Update refresh_token to DB
+    await findKeyStore.update({
+      $push: {
+        refresh_tokens: newRefreshToken,
+        refresh_tokens_used: refreshToken,
+      },
+    });
+    // Remove current refresh_token
+    await findKeyStore.update({
+      $pull: {
+        refresh_tokens: refreshToken,
+      },
+    });
+
+    return new OkResponse({
+      data: {
+        tokens: {
+          accessToken,
+          refreshToken: newRefreshToken,
+          expireAccessToken,
+        },
+      },
+    }).send(res);
+  });
+  logoutUser = catchAsync(async (req, res, next) => {
+    const { user } = req;
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
+    }
+    // Delete current refresh_token in DB
+    await KeysService.deleteByUserIdAndRT({
+      userId: user._id,
+      refreshToken,
+    });
+    return new OkResponse({
+      message: USER_MESSAGES.LOGOUT_SUCCESS,
+    }).send(res);
   });
 }
 

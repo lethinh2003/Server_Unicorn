@@ -8,7 +8,12 @@ const USER_MESSAGES = {
   INPUT_MISSING: "Vui lòng nhập đầy đủ thông tin",
   SIGNUP_SUCCESS: "Đăng ký tài khoản thành công",
   EMAIL_NOT_EXIST_DB: "Email không tồn tại",
+  EMAIL_EXIST_DB: "Email đã tồn tại",
   PASSWORD_COMPARE_INVALID: "Mật khẩu không khớp",
   LOGIN_SUCCESS: "Đăng nhập thành công",
+  COMMON_HACKED_ERROR: "Có gì đó không ổn",
+  LOGIN_REQUIRED: "Vui lòng đăng nhập",
+  AUTHORIZED_REQUIRE: "Không đủ quyền truy cập",
+  LOGOUT_SUCCESS: "Đăng xuất thành công",
 };
 module.exports = { USER_MESSAGES };
