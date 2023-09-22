@@ -19,20 +19,26 @@ const userSchema = new mongoose.Schema(
         message: USER_MESSAGES.EMAIL_INVALID,
       },
     },
+    name: {
+      type: String,
+      trim: true,
+      required: [true, USER_MESSAGES.NAME_MISSING],
+    },
     password: {
       type: String,
       trim: true,
-      min: [8, USER_MESSAGES.PASSWORD_MIN_LENGTH],
+      minlength: [8, USER_MESSAGES.PASSWORD_MIN_LENGTH],
       required: [true, USER_MESSAGES.PASSWORD_MISSING],
     },
-    birthday: {
-      type: Date,
-      required: [true, USER_MESSAGES.BIRTHDAY_MISSING],
-    },
-    gender: {
+    // Reset Password OTP
+    reset_password_otp: {
       type: String,
-      enum: [USER_GENDERS.MALE, USER_GENDERS.FEMALE],
-      required: [true, USER_MESSAGES.GENDER_MISSING],
+      trim: true,
+      minlength: [6, USER_MESSAGES.EMAIL_RESET_PASSWORD_OTP_LENGTH],
+      maxlength: [6, USER_MESSAGES.EMAIL_RESET_PASSWORD_OTP_LENGTH],
+    },
+    time_reset_password_otp: {
+      type: Date,
     },
     role: {
       type: String,

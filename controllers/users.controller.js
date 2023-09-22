@@ -6,16 +6,17 @@ const KeysService = require("../services/keys.service");
 const UsersService = require("../services/users.service");
 const { NotFoundError, BadRequestError, UnauthorizedError } = require("../utils/app_error");
 const catchAsync = require("../utils/catch_async");
-const { comparePassword } = require("../utils/hashPassword");
+const { comparePassword, hashPassword } = require("../utils/hashPassword");
 const { selectFields } = require("../utils/selectFields");
 const { CreatedResponse, OkResponse } = require("../utils/success_response");
 const crypto = require("crypto");
 const { createToken } = require("../utils/authUtils");
+const sendMail = require("../utils/email");
 
 class UsersController {
   createUser = catchAsync(async (req, res, next) => {
-    const { email, password, birthday, gender } = req.body;
-    if (!email || !password || !birthday || !gender) {
+    const { email, password, name } = req.body;
+    if (!email || !password || !name) {
       return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
     }
     // Check email is exist
@@ -23,11 +24,12 @@ class UsersController {
     if (findUser) {
       return next(new BadRequestError(USER_MESSAGES.EMAIL_EXIST_DB));
     }
-    const result = await UsersService.createUser({ email, password, birthday, gender });
+    const result = await UsersService.createUser({ email, password, name });
 
-    return new CreatedResponse({ message: USER_MESSAGES.SIGNUP_SUCCESS, data: selectFields({ fields: ["email"], object: result }) }).send(
-      res
-    );
+    return new CreatedResponse({
+      message: USER_MESSAGES.SIGNUP_SUCCESS,
+      data: selectFields({ fields: ["email", "name"], object: result }),
+    }).send(res);
   });
   loginUser = catchAsync(async (req, res, next) => {
     const { email, password } = req.body;
@@ -154,6 +156,71 @@ class UsersController {
     });
     return new OkResponse({
       message: USER_MESSAGES.LOGOUT_SUCCESS,
+    }).send(res);
+  });
+
+  sendResetPasswordOTP = catchAsync(async (req, res, next) => {
+    const { email } = req.body;
+    if (!email) {
+      return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
+    }
+    // Check email is exist
+    const findUser = await UsersService.findByEmail({ email });
+    if (!findUser) {
+      return next(new NotFoundError(USER_MESSAGES.EMAIL_NOT_EXIST_DB));
+    }
+    // Check time send OTP > 10 min
+    if (Date.now() - new Date(findUser.time_reset_password_otp) < 10 * 60 * 1000) {
+      return next(new UnauthorizedError(USER_MESSAGES.SEND_RESET_PASSWORD_OTP_TIME_FAILED));
+    }
+    // Create OTP (6 bytes)
+    const otp = crypto
+      .randomInt(0, 10 ** 6 - 1)
+      .toString()
+      .padStart(6, "0");
+
+    // Update OTP in DB
+    const updateOTP = UsersService.createOTPResetPassword({
+      email,
+      otp,
+    });
+    // Send OTP to email
+    const sendOTP = sendMail({
+      email: email,
+      subject: "Mã OTP khôi phục mật khẩu UniCorn",
+      text: `Mã OTP khôi phục mật khẩu UniCorn của bạn là: ${otp}. Mã này chỉ có thời hạn trong 10 phút kể từ khi được gửi`,
+      mesage: `Mã OTP khôi phục mật khẩu UniCorn của bạn là: ${otp}. Mã này chỉ có thời hạn trong 10 phút kể từ khi được gửi`,
+    });
+    await Promise.all([updateOTP, sendOTP]);
+
+    return new OkResponse({
+      message: USER_MESSAGES.SEND_RESET_PASSWORD_OTP_SUCCESS,
+    }).send(res);
+  });
+  resetPassword = catchAsync(async (req, res, next) => {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
+    }
+    // Check email & OTP is exist
+    const findUser = await UsersService.findUserByOTPResetPassword({ email, otp });
+    if (!findUser) {
+      return next(new NotFoundError(USER_MESSAGES.EMAIL_OR_OTP_NOT_EXIST_DB));
+    }
+    // Check time OTP expried?
+    if (Date.now() - new Date(findUser.time_reset_password_otp) >= 10 * 60 * 1000) {
+      return next(new UnauthorizedError(USER_MESSAGES.OTP_EXPRIED_IN_DB));
+    }
+    // Random new pasword
+    const newPassword = crypto.randomBytes(8).toString("hex");
+    // Update user in DB
+    await UsersService.updatePassword({ email, password: newPassword });
+    await UsersService.resetPasswordOTP({ email });
+    return new OkResponse({
+      data: {
+        password: newPassword,
+      },
+      message: USER_MESSAGES.RESET_PASSWORD_SUCCESS,
     }).send(res);
   });
 }

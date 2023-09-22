@@ -22,10 +22,10 @@ class Database {
       .catch((err) => {
         console.log("DB connect error");
       });
-    if (nodeENV === "development") {
-      mongoose.set("debug", true);
-      mongoose.set("debug", { color: true });
-    }
+    // if (nodeENV === "development") {
+    //   mongoose.set("debug", true);
+    //   mongoose.set("debug", { color: true });
+    // }
   }
   static getInstance() {
     if (!Database.instance) {

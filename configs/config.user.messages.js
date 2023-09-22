@@ -1,7 +1,9 @@
 const USER_MESSAGES = {
+  NAME_MISSING: "Vui lòng nhập tên",
   EMAIL_MISSING: "Vui lòng nhập email",
   PASSWORD_MISSING: "Vui lòng nhập mật khẩu",
   PASSWORD_MIN_LENGTH: "Mật khẩu cần tối thiểu 8 kí tự",
+  EMAIL_RESET_PASSWORD_OTP_LENGTH: "Mã OTP khôi phục mật khẩu phải đủ 6 kí tự",
   EMAIL_INVALID: "Email không hợp lệ",
   BIRTHDAY_MISSING: "Vui lòng nhập sinh nhật",
   GENDER_MISSING: "Vui lòng nhập giới tính",
@@ -15,5 +17,11 @@ const USER_MESSAGES = {
   LOGIN_REQUIRED: "Vui lòng đăng nhập",
   AUTHORIZED_REQUIRE: "Không đủ quyền truy cập",
   LOGOUT_SUCCESS: "Đăng xuất thành công",
+  SEND_RESET_PASSWORD_OTP_SUCCESS: "Gửi mã OTP thành công",
+  RESET_PASSWORD_SUCCESS: "Reset mật khẩu thành công",
+  EMAIL_OR_OTP_NOT_EXIST_DB: "Email hoặc mã OTP không tồn tại",
+  OTP_EXPRIED_IN_DB: "Mã OTP đã hết hạn",
+  SEND_RESET_PASSWORD_OTP_TIME_FAILED: "Gửi mã OTP thất bại, vui lòng đợi 10 phút sau lần gửi cuối cùng",
+  SEND_MAIL_FAILED: "Gửi email thất bại",
 };
 module.exports = { USER_MESSAGES };
