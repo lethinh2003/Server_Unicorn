@@ -1,6 +1,8 @@
 "use strict";
 
 const Users = require("../models/Users");
+const ProductSizes = require("../models/ProductSizes");
+const ProductColors = require("../models/ProductColors");
 
 class UsersService {
   static createUser = async ({ email, password, name }) => {
@@ -12,6 +14,7 @@ class UsersService {
     return user;
   };
   static findByEmail = async ({ email }) => {
+    await ProductColors.findOne({});
     const user = await Users.findOne({
       email,
     }).lean();
