@@ -15,6 +15,7 @@ const userRouters = require("./routers/users.routers");
 const productSizesRouters = require("./routers/product.sizes.routers");
 const productColorsRouters = require("./routers/product.colors.routers");
 const productCategoriesRouters = require("./routers/product.categories.routers");
+const productReviewsRouters = require("./routers/product.reviews.routers");
 const productsRouters = require("./routers/products.routers");
 
 const cors = require("cors");
@@ -63,6 +64,7 @@ app.use("/api/v1/products", productsRouters);
 app.use("/api/v1/product-sizes", productSizesRouters);
 app.use("/api/v1/product-colors", productColorsRouters);
 app.use("/api/v1/product-categories", productCategoriesRouters);
+app.use("/api/v1/product-reviews", productReviewsRouters);
 
 app.all("*", (req, res, next) => {
   next(new NotFoundError(`No found ${req.originalUrl}`));

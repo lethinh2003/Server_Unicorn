@@ -23,19 +23,21 @@ class KeysService {
   static findByUserID = async ({ userId }) => {
     const data = await Keys.findOne({
       user: userId,
-    });
+    }).lean();
     return data;
   };
   static findByRefreshTokensUsed = async ({ refreshToken }) => {
     const data = await Keys.findOne({
       refresh_tokens_used: refreshToken,
-    });
+    }).lean();
     return data;
   };
   static findByRefreshToken = async ({ refreshToken }) => {
     const data = await Keys.findOne({
       refresh_tokens: refreshToken,
-    }).populate("user");
+    })
+      .populate("user")
+      .lean();
     return data;
   };
   static deleteByID = async ({ ID }) => {

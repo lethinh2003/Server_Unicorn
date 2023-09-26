@@ -3,7 +3,7 @@ const ProductColors = require("../models/ProductColors");
 
 class ProductColorsService {
   static findAllColors = async ({}) => {
-    const results = await ProductColors.find({});
+    const results = await ProductColors.find({}).lean();
     return results;
   };
   static createColor = async ({ name, code }) => {

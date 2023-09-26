@@ -3,6 +3,10 @@ const { PRODUCT_MESSAGES } = require("../configs/config.product.messages");
 const COLLECTION_NAME = "ProductReviews";
 const productReviewSchema = new mongoose.Schema(
   {
+    user: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Users",
+    },
     parent_product_id: {
       type: mongoose.Schema.ObjectId,
       ref: "Products",

@@ -13,5 +13,7 @@ const PRODUCT_MESSAGES = {
 
   SALE_EVENT_NAME_INVALID: "Tên sự kiện sale phải từ 5 kí tự trở lên",
   SALE_DISCOUNT_PERCENTAGE_INVALID: "Sale phải có mức giảm giá từ 0 - 100%",
+
+  REVIEW_IS_EXISTS: "Review đã tồn tại",
 };
 module.exports = { PRODUCT_MESSAGES };

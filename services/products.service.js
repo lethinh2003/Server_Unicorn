@@ -5,6 +5,14 @@ class ProductsService {
     const results = await Products.find({}).lean();
     return results;
   };
+  static findDetailProduct = async ({ productId }) => {
+    const result = await Products.findOne({
+      _id: productId,
+    })
+      .populate("product_color product_sizes.size_type product_categories")
+      .lean();
+    return result;
+  };
   static findAllParentProducts = async ({ category, gender, skipItems, limitItems }) => {
     const results = await Products.find({
       product_categories: category,
@@ -17,35 +25,35 @@ class ProductsService {
       .lean();
     return results;
   };
-  static findAllChildProductsByParent = async ({ parent_product_id }) => {
+  static findAllChildProductsByParent = async ({ parentProductId }) => {
     const results = await Products.find({
-      parent_product_id,
+      parent_product_id: parentProductId,
     })
       .populate("product_color product_sizes.size_type product_categories")
       .lean();
     return results;
   };
   static createProduct = async ({
-    parent_product_id,
-    product_name,
-    product_color,
-    product_sizes,
-    product_categories,
-    product_images,
-    product_gender,
-    product_original_price,
-    product_description,
+    parentProductId,
+    productName,
+    productColor,
+    productSizes,
+    productCategories,
+    productImages,
+    productGender,
+    productOriginalPrice,
+    productDescription,
   }) => {
     const result = await Products.create({
-      parent_product_id,
-      product_name,
-      product_color,
-      product_sizes,
-      product_categories,
-      product_images,
-      product_gender,
-      product_original_price,
-      product_description,
+      parent_product_id: parentProductId,
+      product_name: productName,
+      product_color: productColor,
+      product_sizes: productSizes,
+      product_categories: productCategories,
+      product_images: productImages,
+      product_gender: productGender,
+      product_original_price: productOriginalPrice,
+      product_description: productDescription,
     });
     return result;
   };

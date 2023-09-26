@@ -1,6 +1,7 @@
 "use strict";
 
 const ProductsService = require("../services/products.service");
+const ProductReviewsService = require("../services/product.reviews.service");
 const { NotFoundError, BadRequestError, UnauthorizedError } = require("../utils/app_error");
 const catchAsync = require("../utils/catch_async");
 const { OkResponse, CreatedResponse } = require("../utils/success_response");
@@ -17,8 +18,8 @@ class ProductsController {
     }).send(res);
   });
   getAllParentProducts = catchAsync(async (req, res, next) => {
-    const { category, gender, page, items_of_page } = req.query;
-    const limitItems = items_of_page * 1 || PRODUCT_PAGINATION.LIMIT_ITEMS;
+    const { category, gender, page, itemsOfPage } = req.query;
+    const limitItems = itemsOfPage * 1 || PRODUCT_PAGINATION.LIMIT_ITEMS;
     const currentPage = page * 1 || 1;
     const skipItems = (currentPage - 1) * limitItems;
     const listParentProducts = await ProductsService.findAllParentProducts({
@@ -30,7 +31,7 @@ class ProductsController {
     const results = [];
     for (const product of listParentProducts) {
       const listChildProducts = await ProductsService.findAllChildProductsByParent({
-        parent_product_id: product._id,
+        parentProductId: product._id,
       });
       results.push({ ...product, child_products: listChildProducts });
     }
@@ -45,41 +46,57 @@ class ProductsController {
       },
     }).send(res);
   });
+  getDetailProduct = catchAsync(async (req, res, next) => {
+    const { productId } = req.params;
+    if (!productId) {
+      return next(new UnauthorizedError(PRODUCT_MESSAGES.INPUT_MISSING));
+    }
+    const detailProduct = await ProductsService.findDetailProduct({
+      productId,
+    });
+    const productReviews = await ProductReviewsService.findAllReviewsByProduct({
+      productId,
+    });
+
+    return new OkResponse({
+      data: { ...detailProduct, product_reviews: productReviews },
+    }).send(res);
+  });
   createProduct = catchAsync(async (req, res, next) => {
     const {
-      parent_product_id,
-      product_name,
-      product_color,
-      product_sizes,
-      product_categories,
-      product_images,
-      product_gender,
-      product_original_price,
-      product_description,
+      parentProductId,
+      productName,
+      productColor,
+      productSizes,
+      productCategories,
+      productImages,
+      productGender,
+      productOriginalPrice,
+      productDescription,
     } = req.body;
 
     if (
-      !product_name ||
-      !product_color ||
-      !product_sizes ||
-      !product_categories ||
-      !product_images ||
-      !product_gender ||
-      !product_original_price ||
-      !product_description
+      !productName ||
+      !productColor ||
+      !productSizes ||
+      !productCategories ||
+      !productImages ||
+      !productGender ||
+      !productOriginalPrice ||
+      !productDescription
     ) {
       return next(new UnauthorizedError(PRODUCT_MESSAGES.INPUT_MISSING));
     }
     const result = await ProductsService.createProduct({
-      parent_product_id,
-      product_name,
-      product_color,
-      product_sizes,
-      product_categories,
-      product_images,
-      product_gender,
-      product_original_price,
-      product_description,
+      parentProductId,
+      productName,
+      productColor,
+      productSizes,
+      productCategories,
+      productImages,
+      productGender,
+      productOriginalPrice,
+      productDescription,
     });
 
     return new CreatedResponse({
