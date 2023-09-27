@@ -40,7 +40,7 @@ class ProductReviewsController {
   });
   createReview = catchAsync(async (req, res, next) => {
     const { parentProductId, productId, reviewStart, reviewImages, reviewComment } = req.body;
-    const { userId } = req.user;
+    const { _id: userId } = req.user;
     if (!productId || !reviewStart || !reviewComment) {
       return next(new UnauthorizedError(PRODUCT_MESSAGES.INPUT_MISSING));
     }

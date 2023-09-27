@@ -15,5 +15,8 @@ const PRODUCT_MESSAGES = {
   SALE_DISCOUNT_PERCENTAGE_INVALID: "Sale phải có mức giảm giá từ 0 - 100%",
 
   REVIEW_IS_EXISTS: "Review đã tồn tại",
+
+  FAVORITE_IS_EXISTS: "Sản phẩm đã được thêm vào danh sách yêu thích",
+  PRODUCT_IS_NOT_EXISTS: "Sản phẩm không tồn tại",
 };
 module.exports = { PRODUCT_MESSAGES };
