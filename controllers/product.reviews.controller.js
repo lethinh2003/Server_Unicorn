@@ -4,10 +4,7 @@ const { USER_MESSAGES } = require("../configs/config.user.messages");
 const ProductReviewsService = require("../services/product.reviews.service");
 const { NotFoundError, BadRequestError, UnauthorizedError } = require("../utils/app_error");
 const catchAsync = require("../utils/catch_async");
-const { comparePassword, hashPassword } = require("../utils/hashPassword");
-const { selectFields } = require("../utils/selectFields");
 const { OkResponse, CreatedResponse } = require("../utils/success_response");
-const { createToken } = require("../utils/authUtils");
 const { PRODUCT_MESSAGES } = require("../configs/config.product.messages");
 const { PRODUCT_PAGINATION } = require("../configs/config.product.pagination");
 

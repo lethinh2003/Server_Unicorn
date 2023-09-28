@@ -1,4 +1,15 @@
 const USER_MESSAGES = {
+  USER_PROVINE_MISSING: "Vui lòng nhập tên tỉnh/thành phố",
+  USER_DISTRICT_MISSING: "Vui lòng nhập tên quận/huyện",
+  USER_WARD_MISSING: "Vui lòng nhập tên phường/xã",
+  USER_PHONE_NUMBER_MISSING: "Vui lòng nhập số điện thoại",
+  USER_DETAIL_ADDRESS_MISSING: "Vui lòng nhập địa chỉ chi tiết",
+  ADD_ADDRESS_SUCCESS: "Thêm địa chỉ thành công",
+  DELETE_ADDRESS_SUCCESS: "Xóa địa chỉ thành công",
+  UPDATE_ADDRESS_SUCCESS: "Cập nhật địa chỉ thành công",
+  ADDRESS_INVALID: "Địa chỉ không tồn tại",
+  DEFAULT_ADDRESS_DELETE_INVALID: "Địa chỉ đang là mặc định, không thể xóa",
+
   NAME_MISSING: "Vui lòng nhập tên",
   EMAIL_MISSING: "Vui lòng nhập email",
   PASSWORD_MISSING: "Vui lòng nhập mật khẩu",

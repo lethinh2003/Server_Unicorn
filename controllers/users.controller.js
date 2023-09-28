@@ -1,6 +1,5 @@
 "use strict";
 
-const mongoose = require("mongoose");
 const { USER_MESSAGES } = require("../configs/config.user.messages");
 const KeysService = require("../services/keys.service");
 const UsersService = require("../services/users.service");

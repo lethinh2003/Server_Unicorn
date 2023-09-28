@@ -5,9 +5,7 @@ const FavoriteProductsService = require("../services/favorite.products.service")
 const ProductsService = require("../services/products.service");
 const { NotFoundError, BadRequestError, UnauthorizedError } = require("../utils/app_error");
 const catchAsync = require("../utils/catch_async");
-const { selectFields } = require("../utils/selectFields");
 const { OkResponse, CreatedResponse } = require("../utils/success_response");
-const { createToken } = require("../utils/authUtils");
 const { PRODUCT_PAGINATION } = require("../configs/config.product.pagination");
 const { PRODUCT_MESSAGES } = require("../configs/config.product.messages");
 

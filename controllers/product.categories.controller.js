@@ -4,7 +4,6 @@ const { USER_MESSAGES } = require("../configs/config.user.messages");
 const ProductCategoriesService = require("../services/product.categories.service");
 const { NotFoundError, BadRequestError, UnauthorizedError } = require("../utils/app_error");
 const catchAsync = require("../utils/catch_async");
-const { selectFields } = require("../utils/selectFields");
 const { OkResponse, CreatedResponse } = require("../utils/success_response");
 const { PRODUCT_MESSAGES } = require("../configs/config.product.messages");
 const { PRODUCT_GENDERS } = require("../configs/config.product.genders");
