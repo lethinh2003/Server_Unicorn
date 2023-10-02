@@ -35,9 +35,7 @@ class KeysService {
   static findByRefreshToken = async ({ refreshToken }) => {
     const data = await Keys.findOne({
       refresh_tokens: refreshToken,
-    })
-      .populate("user")
-      .lean();
+    }).populate("user");
     return data;
   };
   static deleteByID = async ({ ID }) => {
