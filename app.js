@@ -18,6 +18,7 @@ const productCategoriesRouters = require("./routers/product.categories.routers")
 const productReviewsRouters = require("./routers/product.reviews.routers");
 const favoriteProductsRouters = require("./routers/favorite.products.routers");
 const productsRouters = require("./routers/products.routers");
+const vouchersRouters = require("./routers/vouchers.routers");
 
 const cors = require("cors");
 const { convertDateTime } = require("./utils/convertTime");
@@ -60,6 +61,7 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.status(200).send("Hello World");
 });
+app.use("/api/v1/vouchers", vouchersRouters);
 app.use("/api/v1/users", userRouters);
 app.use("/api/v1/products", productsRouters);
 app.use("/api/v1/product-sizes", productSizesRouters);
