@@ -18,5 +18,6 @@ const PRODUCT_MESSAGES = {
 
   FAVORITE_IS_EXISTS: "Sản phẩm đã được thêm vào danh sách yêu thích",
   PRODUCT_IS_NOT_EXISTS: "Sản phẩm không tồn tại",
+  PRODUCT_IS_NOT_AVAILABLE: "Sản phẩm không có sẵn hàng",
 };
 module.exports = { PRODUCT_MESSAGES };

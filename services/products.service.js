@@ -13,6 +13,23 @@ class ProductsService {
       .lean();
     return result;
   };
+  static checkAvailableProduct = async ({ productId, productSize, productQuantities }) => {
+    const result = await Products.findOne({
+      _id: productId,
+    }).lean();
+    if (!result) {
+      return false;
+    }
+    const findProductSize = result?.product_sizes?.filter((item) => item.size_type.toString() === productSize.toString())[0];
+    if (!findProductSize) {
+      return false;
+    }
+    if (findProductSize.size_quantities < productQuantities) {
+      return false;
+    }
+
+    return true;
+  };
   static findAllParentProducts = async ({ category, gender, skipItems, limitItems }) => {
     const results = await Products.find({
       product_categories: category,
