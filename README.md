@@ -40,6 +40,26 @@ Error:
 }
 ```
 
+## Khởi tạo
+
+Sau khi clone source về, gõ lệnh:
+
+```bash
+npm install
+```
+
+## Chạy ứng dụng
+
+Trước khi chạy ứng dụng, vui lòng đổi tên file _config.env.a_ thành _config.env_ để áp dụng các biến môi trường vào project.
+<br>
+Để chạy ứng dụng trên môi trường development, gõ lệnh:
+
+```bash
+npm run dev
+```
+
+Sau đó truy cập vào http://localhost:8084
+
 ## Users
 
 ### Create user
