@@ -128,7 +128,7 @@ http://localhost:8084/api/v1/users/login
     "status": "Success",
     "message": "Đăng nhập thành công",
     "data": {
-        "token": {
+        "tokens": {
             "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im11cmFkdm4yMDAzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWQiOiI2NTBkM2Y0ZjQyMWVkMjRkYzQxNDU0YmIiLCJpYXQiOjE2OTYyMTQyMjQsImV4cCI6MTY5NzA3ODIyNH0.S4JFJpuR98CLXRY_H0I9AQ3l3jp3Rp-YV3tixRaOq6c",
             "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im11cmFkdm4yMDAzQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWQiOiI2NTBkM2Y0ZjQyMWVkMjRkYzQxNDU0YmIiLCJpYXQiOjE2OTYyMTQyMjQsImV4cCI6MTY5ODgwNjIyNH0.x-qbhvQ1xMUhB88G7P9xnWS0UDrHpLtUApfa2QHrcDU",
             "expireAccessToken": 1697078224424
