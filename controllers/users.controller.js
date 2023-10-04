@@ -80,7 +80,10 @@ class UsersController {
 
     return new OkResponse({
       message: USER_MESSAGES.LOGIN_SUCCESS,
-      data: { tokens: { accessToken, refreshToken, expireAccessToken } },
+      data: {
+        user: selectFields({ fields: ["_id", "email", "role"], object: user }),
+        tokens: { accessToken, refreshToken, expireAccessToken },
+      },
     }).send(res);
   });
   handleRefreshToken = catchAsync(async (req, res, next) => {
