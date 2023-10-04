@@ -78,9 +78,10 @@ class UsersController {
       privateKey,
     });
 
-    return new OkResponse({ message: USER_MESSAGES.LOGIN_SUCCESS, data: { token: { accessToken, refreshToken, expireAccessToken } } }).send(
-      res
-    );
+    return new OkResponse({
+      message: USER_MESSAGES.LOGIN_SUCCESS,
+      data: { tokens: { accessToken, refreshToken, expireAccessToken } },
+    }).send(res);
   });
   handleRefreshToken = catchAsync(async (req, res, next) => {
     const { refreshToken } = req.body;
