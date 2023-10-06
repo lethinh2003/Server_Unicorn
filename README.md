@@ -205,7 +205,7 @@ http://localhost:8084/api/v1/users/logout
 }
 ```
 
-### Send reset password otp (Authentication)
+### Send reset password otp
 
 ```
 http://localhost:8084/api/v1/users/send-reset-password-otp
@@ -233,7 +233,7 @@ http://localhost:8084/api/v1/users/send-reset-password-otp
 }
 ```
 
-### Reset password (Authentication)
+### Reset password
 
 ```
 http://localhost:8084/api/v1/users/reset-password
