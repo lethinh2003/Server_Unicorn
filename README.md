@@ -256,10 +256,8 @@ http://localhost:8084/api/v1/users/reset-password
 {
     "statusCode": 200,
     "status": "Success",
-    "message": "Reset mật khẩu thành công",
-    "data": {
-        "password": "a8e1ce9d0c2eb7b5"
-    },
+    "message": "Reset mật khẩu thành công, mật khẩu mới đã được gửi về email của bạn",
+    "data": null,
     "metadata": {}
 }
 ```

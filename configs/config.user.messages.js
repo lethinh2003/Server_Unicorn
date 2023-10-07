@@ -29,7 +29,7 @@ const USER_MESSAGES = {
   AUTHORIZED_REQUIRE: "Không đủ quyền truy cập",
   LOGOUT_SUCCESS: "Đăng xuất thành công",
   SEND_RESET_PASSWORD_OTP_SUCCESS: "Gửi mã OTP thành công",
-  RESET_PASSWORD_SUCCESS: "Reset mật khẩu thành công",
+  RESET_PASSWORD_SUCCESS: "Reset mật khẩu thành công, mật khẩu mới đã được gửi về email của bạn",
   EMAIL_OR_OTP_NOT_EXIST_DB: "Email hoặc mã OTP không tồn tại",
   OTP_EXPRIED_IN_DB: "Mã OTP đã hết hạn",
   SEND_RESET_PASSWORD_OTP_TIME_FAILED: "Gửi mã OTP thất bại, vui lòng đợi 10 phút sau lần gửi cuối cùng",

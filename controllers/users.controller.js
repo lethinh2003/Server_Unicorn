@@ -219,10 +219,15 @@ class UsersController {
     // Update user in DB
     await UsersService.updatePassword({ email, password: newPassword });
     await UsersService.resetPasswordOTP({ email });
+    // Send OTP to email
+    const sendOTP = await sendMail({
+      email: email,
+      subject: "Bạn đã thay đổi mật khẩu UniCorn",
+      text: `Mật khẩu mới của bạn là: ${newPassword}.`,
+      mesage: `Mật khẩu mới của bạn là: ${newPassword}.`,
+    });
+
     return new OkResponse({
-      data: {
-        password: newPassword,
-      },
       message: USER_MESSAGES.RESET_PASSWORD_SUCCESS,
     }).send(res);
   });
