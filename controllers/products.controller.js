@@ -46,6 +46,35 @@ class ProductsController {
       },
     }).send(res);
   });
+  getLatestProducts = catchAsync(async (req, res, next) => {
+    const { category, gender, page, itemsOfPage } = req.query;
+    const limitItems = itemsOfPage * 1 || PRODUCT_PAGINATION.LIMIT_ITEMS;
+    const currentPage = page * 1 || 1;
+    const skipItems = (currentPage - 1) * limitItems;
+    const listParentProducts = await ProductsService.findAllParentProducts({
+      category,
+      gender,
+      skipItems,
+      limitItems,
+    });
+    const results = [];
+    for (const product of listParentProducts) {
+      const listChildProducts = await ProductsService.findAllChildProductsByParent({
+        parentProductId: product._id,
+      });
+      results.push({ ...product, child_products: listChildProducts });
+    }
+
+    return new OkResponse({
+      data: results,
+      metadata: {
+        page: currentPage,
+        limit: limitItems,
+        category,
+        results: results.length,
+      },
+    }).send(res);
+  });
   getDetailProduct = catchAsync(async (req, res, next) => {
     const { productId } = req.params;
     if (!productId) {

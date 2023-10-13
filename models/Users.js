@@ -30,6 +30,17 @@ const userSchema = new mongoose.Schema(
       minlength: [8, USER_MESSAGES.PASSWORD_MIN_LENGTH],
       required: [true, USER_MESSAGES.PASSWORD_MISSING],
     },
+    birthday: {
+      type: Date,
+    },
+    gender: {
+      type: String,
+      enum: [USER_ROLES.USER, USER_ROLES.STAFF, USER_ROLES.ADMIN],
+      default: USER_ROLES.USER,
+    },
+    phone_number: {
+      type: String,
+    },
     // Reset Password OTP
     reset_password_otp: {
       type: String,
@@ -42,8 +53,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: [USER_ROLES.USER, USER_ROLES.STAFF, USER_ROLES.ADMIN],
-      default: USER_ROLES.USER,
+      enum: [USER_ROLES.ADMIN, USER_ROLES.STAFF, USER_ROLES.USER],
     },
     status: {
       type: Boolean,

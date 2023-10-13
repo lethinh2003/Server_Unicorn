@@ -22,7 +22,7 @@ class ProductCategoriesController {
       return next(new UnauthorizedError(PRODUCT_MESSAGES.INPUT_MISSING));
     }
     // Find parent category
-    const listParentCategories = await ProductCategoriesService.findAllParentCategories({});
+    const listParentCategories = await ProductCategoriesService.findAllParentCategories({ gender });
     const results = [];
     for (const itemParentCategory of listParentCategories) {
       // Find child categories from parent category

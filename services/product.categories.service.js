@@ -7,8 +7,16 @@ class ProductCategoriesService {
     const results = await ProductCategories.find({}).lean();
     return results;
   };
-  static findAllParentCategories = async ({}) => {
-    const results = await ProductCategories.find({ product_category_parent_id: undefined }).lean();
+  static findAllParentCategories = async ({ gender }) => {
+    const results = await ProductCategories.find({
+      product_category_parent_id: undefined,
+      $or: [
+        { product_category_gender: gender },
+        {
+          product_category_gender: PRODUCT_GENDERS.UNISEX,
+        },
+      ],
+    }).lean();
     return results;
   };
   static findChildCategories = async ({ parentCategoryId, gender = PRODUCT_GENDERS.UNISEX }) => {
