@@ -11,6 +11,8 @@ const PRODUCT_MESSAGES = {
   CATEGORY_KEY_WORD_MISSING: "Vui lòng nhập key word danh mục",
   CATEGORY_GENDER_MISSING: "Vui lòng nhập giới tính của danh mục",
 
+  CREATE_PRODUCT_SUCCESS: "Tạo sản phẩm thành công",
+
   SALE_EVENT_NAME_INVALID: "Tên sự kiện sale phải từ 5 kí tự trở lên",
   SALE_DISCOUNT_PERCENTAGE_INVALID: "Sale phải có mức giảm giá từ 0 - 100%",
 

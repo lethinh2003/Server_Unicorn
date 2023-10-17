@@ -83,12 +83,15 @@ class ProductsController {
     const detailProduct = await ProductsService.findDetailProduct({
       productId,
     });
-    const productReviews = await ProductReviewsService.findAllReviewsByProduct({
-      productId,
+    if (!detailProduct) {
+      return next(new NotFoundError(PRODUCT_MESSAGES.PRODUCT_IS_NOT_EXISTS));
+    }
+    const childProduct = await ProductsService.findAllChildProductsByParent({
+      parentProductId: productId,
     });
 
     return new OkResponse({
-      data: { ...detailProduct, product_reviews: productReviews },
+      data: { ...detailProduct, child_products: childProduct },
     }).send(res);
   });
   createProduct = catchAsync(async (req, res, next) => {
@@ -129,7 +132,7 @@ class ProductsController {
     });
 
     return new CreatedResponse({
-      data: result,
+      message: PRODUCT_MESSAGES.CREATE_PRODUCT_SUCCESS,
     }).send(res);
   });
 }

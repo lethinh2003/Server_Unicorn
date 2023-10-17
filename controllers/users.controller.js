@@ -13,6 +13,27 @@ const { createToken } = require("../utils/authUtils");
 const sendMail = require("../utils/email");
 
 class UsersController {
+  getInformationUser = catchAsync(async (req, res, next) => {
+    const { _id } = req.user;
+    const result = await UsersService.findById({ _id });
+
+    return new OkResponse({
+      data: selectFields({ fields: ["email", "name", "birthday", "gender", "phone_number"], object: result }),
+    }).send(res);
+  });
+  updateInformationUser = catchAsync(async (req, res, next) => {
+    const { birthday, gender, name, phone_number } = req.body;
+    const { _id } = req.user;
+    if (!birthday || !gender || !phone_number || !name) {
+      return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
+    }
+    const result = await UsersService.updateInformationUser({ birthday, gender, name, phone_number, _id });
+
+    return new OkResponse({
+      message: USER_MESSAGES.UPDATE_INFORMATION_SUCCESS,
+    }).send(res);
+  });
+
   createUser = catchAsync(async (req, res, next) => {
     const { email, password, name } = req.body;
     if (!email || !password || !name) {

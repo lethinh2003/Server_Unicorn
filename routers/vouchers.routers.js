@@ -4,6 +4,6 @@ const authController = require("../controllers/auth.controller");
 
 const router = express.Router();
 router.route("/").get(authController.protect, vouchersController.getUserVouchers);
-router.route("/").post(authController.protect, vouchersController.createVoucher);
+router.route("/").post(authController.protect, authController.reStrictTo(["admin"]), vouchersController.createVoucher);
 
 module.exports = router;

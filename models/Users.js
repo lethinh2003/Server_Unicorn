@@ -35,8 +35,11 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      enum: [USER_ROLES.USER, USER_ROLES.STAFF, USER_ROLES.ADMIN],
-      default: USER_ROLES.USER,
+      enum: {
+        values: [USER_GENDERS.MALE, USER_GENDERS.FEMALE, USER_GENDERS.OTHERS],
+        message: USER_MESSAGES.GENDER_MISSING,
+      },
+      default: USER_GENDERS.OTHERS,
     },
     phone_number: {
       type: String,

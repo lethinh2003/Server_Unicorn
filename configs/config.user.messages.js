@@ -10,6 +10,9 @@ const USER_MESSAGES = {
   ADDRESS_INVALID: "Địa chỉ không tồn tại",
   DEFAULT_ADDRESS_DELETE_INVALID: "Địa chỉ đang là mặc định, không thể xóa",
 
+  USER_NOT_EXIST_DB: "Nguời dùng không tồn tại",
+  UPDATE_INFORMATION_SUCCESS: "Cập nhật thông tin thành công",
+
   NAME_MISSING: "Vui lòng nhập tên",
   EMAIL_MISSING: "Vui lòng nhập email",
   PASSWORD_MISSING: "Vui lòng nhập mật khẩu",

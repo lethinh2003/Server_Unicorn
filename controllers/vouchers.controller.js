@@ -10,6 +10,8 @@ const {
     limitItems: { voucher: LIMIT_ITEMS },
   },
 } = require("../configs/config.pagination");
+const UsersService = require("../services/users.service");
+const { USER_MESSAGES } = require("../configs/config.user.messages");
 class VouchersController {
   getUserVouchers = catchAsync(async (req, res, next) => {
     const { itemsOfPage, page } = req.query;
@@ -34,10 +36,14 @@ class VouchersController {
     }).send(res);
   });
   createVoucher = catchAsync(async (req, res, next) => {
-    const { code, discount, description, minOrderQuantity, minOrderAmount, expiredDate, type } = req.body;
-    const { _id: userId } = req.user;
+    const { userId, code, discount, description, minOrderQuantity, minOrderAmount, expiredDate, type } = req.body;
     if (!code || !discount || !description || !expiredDate || !type) {
       return next(new UnauthorizedError(VOUCHER_MESSAGES.INPUT_MISSING));
+    }
+    // Check user is exists
+    const findUser = await UsersService.findById({ _id: userId });
+    if (!findUser) {
+      return next(new BadRequestError(USER_MESSAGES.USER_NOT_EXIST_DB));
     }
     // Check user has a voucher?
     const checkVoucherIsExists = await VouchersService.findOneByUserAndCode({

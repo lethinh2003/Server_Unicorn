@@ -25,7 +25,7 @@ class AuthController {
       return next(new UnauthorizedError(USER_MESSAGES.LOGIN_REQUIRED));
     }
     accessToken = accessToken.split(" ")[1];
-    const user = await AuthService.validateToken({ accessToken, publicKey: keyStore.public_key, userId });
+    const user = await AuthService.validateToken({ accessToken, publicKey: keyStore.public_key, userId, next });
     req.user = user;
     req.keyStore = keyStore;
     next();
@@ -34,7 +34,7 @@ class AuthController {
   //PERMISSION//
   reStrictTo = (roles) => {
     return (req, res, next) => {
-      if (AuthService.isPermission({ roles, userRole: req.user.role })) {
+      if (AuthService.isPermission({ roles, userRole: req.user.role, next })) {
         next();
       }
     };

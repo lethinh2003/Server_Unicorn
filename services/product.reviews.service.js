@@ -6,15 +6,28 @@ class ProductReviewsService {
     const results = await ProductReviews.find({}).lean();
     return results;
   };
-  static findReviewsByProduct = async ({ productId, skipItems, limitItems }) => {
-    const results = await ProductReviews.find({
-      product_id: productId,
-    })
-      .skip(skipItems)
-      .limit(limitItems)
-      .lean();
+  static findReviewsByProduct = async ({ parentProductId, productId, skipItems, limitItems }) => {
+    let results = [];
+    // Is parent product
+    if (!parentProductId) {
+      results = await ProductReviews.find({
+        $or: [{ product_id: productId }, { parent_product_id: productId }],
+      })
+        .skip(skipItems)
+        .limit(limitItems)
+        .lean();
+    } else {
+      // is child product
+      results = await ProductReviews.find({
+        $or: [{ product_id: productId }, { product_id: parentProductId }, { parent_product_id: parentProductId }],
+      })
+        .skip(skipItems)
+        .limit(limitItems)
+        .lean();
+    }
     return results;
   };
+
   static findAllReviewsByProduct = async ({ productId }) => {
     const results = await ProductReviews.find({
       product_id: productId,

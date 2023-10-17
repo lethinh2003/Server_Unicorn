@@ -5,6 +5,21 @@ const ProductSizes = require("../models/ProductSizes");
 const ProductColors = require("../models/ProductColors");
 
 class UsersService {
+  static updateInformationUser = async ({ birthday, gender, name, phone_number, _id }) => {
+    const user = await Users.findOneAndUpdate(
+      { _id },
+      {
+        birthday,
+        gender,
+        name,
+        phone_number,
+      },
+      {
+        runValidators: true,
+      }
+    );
+    return user;
+  };
   static createUser = async ({ email, password, name }) => {
     const user = await Users.create({
       email,
@@ -13,8 +28,13 @@ class UsersService {
     });
     return user;
   };
+  static findById = async ({ _id }) => {
+    const user = await Users.findOne({
+      _id,
+    }).lean();
+    return user;
+  };
   static findByEmail = async ({ email }) => {
-    await ProductColors.findOne({});
     const user = await Users.findOne({
       email,
     }).lean();

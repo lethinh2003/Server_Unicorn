@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const { USER_MESSAGES } = require("../configs/config.user.messages");
 
 class AuthService {
-  static validateToken = async ({ accessToken, publicKey, userId }) => {
+  static validateToken = async ({ accessToken, publicKey, userId, next }) => {
     const decode = jwt.verify(accessToken, publicKey);
     if (decode.id.toString() !== userId.toString()) {
       return next(new UnauthorizedError(USER_MESSAGES.LOGIN_REQUIRED));
@@ -17,7 +17,7 @@ class AuthService {
     }
     return user;
   };
-  static isPermission = ({ roles, userRole }) => {
+  static isPermission = ({ roles, userRole, next }) => {
     if (!roles.includes(userRole)) {
       return next(new UnauthorizedError(USER_MESSAGES.AUTHORIZED_REQUIRE));
     }

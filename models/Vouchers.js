@@ -39,7 +39,7 @@ const vouchersSchema = new mongoose.Schema(
     expired_date: {
       type: Date,
       default: Date.now,
-      expires: 0,
+      // expires: 0,
     },
     type: {
       type: String,

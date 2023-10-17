@@ -7,6 +7,7 @@ const catchAsync = require("../utils/catch_async");
 const { OkResponse, CreatedResponse } = require("../utils/success_response");
 const { PRODUCT_MESSAGES } = require("../configs/config.product.messages");
 const { PRODUCT_PAGINATION } = require("../configs/config.product.pagination");
+const ProductsService = require("../services/products.service");
 
 class ProductReviewsController {
   getAllReviews = catchAsync(async (req, res, next) => {
@@ -20,7 +21,20 @@ class ProductReviewsController {
     const limitItems = itemsOfPage * 1 || PRODUCT_PAGINATION.LIMIT_ITEMS;
     const currentPage = page * 1 || 1;
     const skipItems = (currentPage - 1) * limitItems;
+    if (!productId) {
+      return next(new UnauthorizedError(PRODUCT_MESSAGES.INPUT_MISSING));
+    }
+    const findProduct = await ProductsService.findById({
+      productId,
+    });
+    // Check product is exists
+    if (!findProduct) {
+      return next(new NotFoundError(PRODUCT_MESSAGES.PRODUCT_IS_NOT_EXISTS));
+    }
+
+    // get all reviews
     const results = await ProductReviewsService.findReviewsByProduct({
+      parentProductId: findProduct.parent_product_id,
       productId,
       skipItems,
       limitItems,

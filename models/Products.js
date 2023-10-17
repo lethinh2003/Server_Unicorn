@@ -57,9 +57,16 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
 
-    product_description: {
-      type: String,
-    },
+    product_description: [
+      {
+        type: {
+          type: String,
+        },
+        content: {
+          type: String,
+        },
+      },
+    ],
     status: {
       type: Boolean,
       default: true,
