@@ -1,5 +1,6 @@
 "use strict";
 const Products = require("../models/Products");
+const mongoose = require("mongoose");
 class ProductsService {
   static findAllProducts = async ({}) => {
     const results = await Products.find({
@@ -40,13 +41,47 @@ class ProductsService {
 
     return true;
   };
-  static findAllParentProducts = async ({ category, gender, skipItems, limitItems }) => {
-    const results = await Products.find({
+  static findAllParentProducts = async ({ category, gender, skipItems, limitItems, color, size }) => {
+    let query = {
       status: true,
-      product_categories: category,
       product_gender: gender,
       $or: [{ parent_product_id: null }, { parent_product_id: undefined }],
-    })
+    };
+    if (category !== "all") {
+      query.product_categories = category;
+    }
+    if (color !== "all") {
+      query.product_color = color;
+    }
+    if (size !== "all") {
+      query.product_sizes = { $elemMatch: { size_type: size } };
+    }
+
+    const results = await Products.find(query)
+      .populate("product_color product_sizes.size_type product_categories")
+      .limit(limitItems)
+      .skip(skipItems)
+      .lean();
+    return results;
+  };
+  static findAllProductsByFilter = async ({ category, gender, skipItems, limitItems, color, size }) => {
+    let query = {
+      status: true,
+      product_gender: gender,
+    };
+    if (category !== "all") {
+      query.product_categories = category;
+    }
+    if (color !== "all") {
+      query.product_color = color;
+    } else {
+      query.$or = [{ parent_product_id: null }, { parent_product_id: undefined }];
+    }
+    if (size !== "all") {
+      query.product_sizes = { $elemMatch: { size_type: size } };
+    }
+
+    const results = await Products.find(query)
       .populate("product_color product_sizes.size_type product_categories")
       .limit(limitItems)
       .skip(skipItems)

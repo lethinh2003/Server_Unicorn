@@ -8,7 +8,8 @@ const { OkResponse, CreatedResponse } = require("../utils/success_response");
 const { PRODUCT_MESSAGES } = require("../configs/config.product.messages");
 const { result } = require("lodash");
 const { PRODUCT_PAGINATION } = require("../configs/config.product.pagination");
-
+const _ = require("lodash"); // Import Lodash library
+const { unSelectFields } = require("../utils/selectFields");
 class ProductsController {
   getAllProducts = catchAsync(async (req, res, next) => {
     const results = await ProductsService.findAllProducts({});
@@ -18,30 +19,46 @@ class ProductsController {
     }).send(res);
   });
   getAllParentProducts = catchAsync(async (req, res, next) => {
-    const { category, gender, page, itemsOfPage } = req.query;
+    const { category = "all", gender, page, itemsOfPage, color = "all", size = "all" } = req.query;
     const limitItems = itemsOfPage * 1 || PRODUCT_PAGINATION.LIMIT_ITEMS;
     const currentPage = page * 1 || 1;
     const skipItems = (currentPage - 1) * limitItems;
-    const listParentProducts = await ProductsService.findAllParentProducts({
+    let results = [];
+    const listProducts = await ProductsService.findAllProductsByFilter({
       category,
       gender,
       skipItems,
       limitItems,
+      color,
+      size,
     });
-    const results = [];
-    for (const product of listParentProducts) {
-      const listChildProducts = await ProductsService.findAllChildProductsByParent({
-        parentProductId: product._id,
-      });
-      results.push({ ...product, child_products: listChildProducts });
-    }
 
+    if (color === "all") {
+      const productPromises = listProducts.map(async (product) => {
+        const listChildProducts = await ProductsService.findAllChildProductsByParent({
+          parentProductId: product._id,
+        });
+        return {
+          ...unSelectFields({ fields: ["product_categories", "product_sizes", "product_description"], object: product }),
+          child_products: listChildProducts.map((child) =>
+            unSelectFields({ fields: ["product_categories", "product_sizes", "product_description"], object: child })
+          ),
+        };
+      });
+      results = await Promise.all(productPromises);
+    } else {
+      results = listProducts;
+    }
     return new OkResponse({
       data: results,
       metadata: {
         page: currentPage,
         limit: limitItems,
         category,
+        gender,
+        color,
+        size,
+
         results: results.length,
       },
     }).send(res);

@@ -325,6 +325,37 @@ http://localhost:8084/api/v1/users
 }
 ```
 
+### Update detail information (Authentication)
+
+```
+http://localhost:8084/api/v1/users/update
+```
+
+**Method:** POST
+<br>
+**Request body**:
+
+```
+{
+    "birthday": "2003-10-22",
+    "gender": "male",
+    "name": "LeThinh",
+    "phone_number": "0369084341"
+}
+```
+
+**Response:**
+
+```
+{
+    "statusCode": 200,
+    "status": "Success",
+    "message": "Cập nhật thông tin thành công",
+    "data": null,
+    "metadata": {}
+}
+```
+
 ### Get user addresses (Authentication)
 
 ```
