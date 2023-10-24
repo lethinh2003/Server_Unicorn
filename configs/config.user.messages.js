@@ -12,6 +12,7 @@ const USER_MESSAGES = {
 
   USER_NOT_EXIST_DB: "Nguời dùng không tồn tại",
   UPDATE_INFORMATION_SUCCESS: "Cập nhật thông tin thành công",
+  UPDATE_PASSWORD_SUCCESS: "Cập nhật mật khẩu thành công",
 
   NAME_MISSING: "Vui lòng nhập tên",
   EMAIL_MISSING: "Vui lòng nhập email",
@@ -26,6 +27,9 @@ const USER_MESSAGES = {
   EMAIL_NOT_EXIST_DB: "Email không tồn tại",
   EMAIL_EXIST_DB: "Email đã tồn tại",
   PASSWORD_COMPARE_INVALID: "Mật khẩu không khớp",
+  CURRENT_PASSWORD_COMPARE_INVALID: "Mật khẩu cũ không khớp",
+  CURRENT_PASSWORD_IS_EQUAL_NEW_PASSWORD: "Mật khẩu mới trùng với mật khẩu cũ",
+  PASSWORD_COMPARE_VALID: "Mật khẩu khớp nhau",
   LOGIN_SUCCESS: "Đăng nhập thành công",
   COMMON_HACKED_ERROR: "Có gì đó không ổn",
   LOGIN_REQUIRED: "Vui lòng đăng nhập",

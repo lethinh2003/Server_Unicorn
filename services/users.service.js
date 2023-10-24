@@ -1,10 +1,17 @@
 "use strict";
 
 const Users = require("../models/Users");
-const ProductSizes = require("../models/ProductSizes");
-const ProductColors = require("../models/ProductColors");
 
 class UsersService {
+  static updatePasswordUser = async ({ new_password, _id }) => {
+    const user = await Users.findOneAndUpdate(
+      { _id },
+      {
+        password: new_password,
+      }
+    );
+    return user;
+  };
   static updateInformationUser = async ({ birthday, gender, name, phone_number, _id }) => {
     const user = await Users.findOneAndUpdate(
       { _id },

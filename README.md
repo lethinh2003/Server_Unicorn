@@ -356,6 +356,35 @@ http://localhost:8084/api/v1/users/update
 }
 ```
 
+### Update password (Authentication)
+
+```
+http://localhost:8084/api/v1/users/update-password
+```
+
+**Method:** POST
+<br>
+**Request body**:
+
+```
+{
+    "current_password": "thinh1234",
+    "new_password": "thinh123"
+}
+```
+
+**Response:**
+
+```
+{
+    "statusCode": 200,
+    "status": "Success",
+    "message": "Cập nhật mật khẩu thành công",
+    "data": null,
+    "metadata": {}
+}
+```
+
 ### Get user addresses (Authentication)
 
 ```

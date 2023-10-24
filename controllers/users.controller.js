@@ -33,6 +33,30 @@ class UsersController {
       message: USER_MESSAGES.UPDATE_INFORMATION_SUCCESS,
     }).send(res);
   });
+  updatePasswordUser = catchAsync(async (req, res, next) => {
+    const { current_password, new_password } = req.body;
+    const { _id, password: userPassword } = req.user;
+    if (!current_password || !new_password) {
+      return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
+    }
+    if (current_password === new_password) {
+      return next(new UnauthorizedError(USER_MESSAGES.CURRENT_PASSWORD_IS_EQUAL_NEW_PASSWORD));
+    }
+    // check current password is match
+    const validatePassword = await comparePassword(current_password, userPassword);
+    if (!validatePassword) {
+      return next(new UnauthorizedError(USER_MESSAGES.CURRENT_PASSWORD_COMPARE_INVALID));
+    }
+
+    // change password
+    await UsersService.updatePasswordUser({
+      new_password: await hashPassword(new_password),
+      _id,
+    });
+    return new OkResponse({
+      message: USER_MESSAGES.UPDATE_PASSWORD_SUCCESS,
+    }).send(res);
+  });
 
   createUser = catchAsync(async (req, res, next) => {
     const { email, password, name } = req.body;
