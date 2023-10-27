@@ -449,6 +449,49 @@ Example: http://localhost:8084/api/v1/users/addresses?page=1&itemsOfPage=10 //Ge
 }
 ```
 
+### Get detail user address (Authentication)
+
+```
+http://localhost:8084/api/v1/users/addresses/:addressId
+```
+
+**Method:** GET
+<br>
+**Query params**:
+
+```
+
+```
+
+**Response:**
+
+```
+{
+    "statusCode": 200,
+    "status": "Success",
+    "message": "Success",
+    "data": {
+        "_id": "65332d646c88e0040831e990",
+        "default": false,
+        "status": true,
+        "user_id": "650d3f4f421ed24dc41454bb",
+        "provine": "TPHCM",
+        "district": "Quận 12",
+        "ward": "Phường 12",
+        "full_name": "Lê Văn Thịnh",
+        "phone_number": "0369084341",
+        "detail_address": "130/20",
+        "createdAt": "2023-10-21T01:46:12.201Z",
+        "updatedAt": "2023-10-26T13:59:21.563Z",
+        "__v": 0
+    },
+    "metadata": {
+        "addressId": "65332d646c88e0040831e990",
+        "userId": "650d3f4f421ed24dc41454bb"
+    }
+}
+```
+
 ### Create user address (Authentication)
 
 ```
@@ -466,7 +509,9 @@ http://localhost:8084/api/v1/users/addresses
     "ward": "Phường 12",
     "fullName": "Lê Văn Thịnh",
     "phoneNumber": "0369084341",
-    "detailAddress": "130/20"
+    "detailAddress": "130/20",
+    "isDefault": true // true | false
+
 }
 ```
 

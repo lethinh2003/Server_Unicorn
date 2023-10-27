@@ -7,5 +7,6 @@ router.route("/").get(authController.protect, userAddressesController.getUserAdd
 router.route("/").post(authController.protect, userAddressesController.createAddress);
 router.route("/update").post(authController.protect, userAddressesController.updateAddress);
 router.route("/delete").post(authController.protect, userAddressesController.deleteAddress);
+router.route("/:addressId").get(authController.protect, userAddressesController.getDetailUserAddresses);
 
 module.exports = router;

@@ -8,6 +8,25 @@ const { CreatedResponse, OkResponse } = require("../utils/success_response");
 const { PRODUCT_PAGINATION } = require("../configs/config.product.pagination");
 
 class UserAddressesController {
+  getDetailUserAddresses = catchAsync(async (req, res, next) => {
+    const { addressId } = req.params;
+    const { _id: userId } = req.user;
+    const result = await UserAddressesService.findAddressesByUserAndId({
+      userId,
+      addressId,
+    });
+    if (!result) {
+      return next(new NotFoundError(USER_MESSAGES.ADDRESS_INVALID));
+    }
+
+    return new OkResponse({
+      data: result,
+      metadata: {
+        addressId,
+        userId,
+      },
+    }).send(res);
+  });
   getUserAddresses = catchAsync(async (req, res, next) => {
     const { itemsOfPage, page } = req.query;
     const { _id: userId } = req.user;
@@ -32,7 +51,7 @@ class UserAddressesController {
     }).send(res);
   });
   createAddress = catchAsync(async (req, res, next) => {
-    const { provine, district, ward, fullName, phoneNumber, detailAddress } = req.body;
+    const { provine, district, ward, fullName, phoneNumber, detailAddress, isDefault = false } = req.body;
     const { _id: userId } = req.user;
     if (!provine || !district || !ward || !fullName || !phoneNumber || !detailAddress) {
       return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
@@ -44,6 +63,14 @@ class UserAddressesController {
     });
     if (checkUserAddresses.length > 0) {
       isAddressDefault = false;
+    }
+    if (isDefault) {
+      // Remove current default address
+      await UserAddressesService.updateDefaultAddress({
+        oldDefault: true,
+        newDefault: false,
+      });
+      isAddressDefault = true;
     }
     const addressCreated = await UserAddressesService.createAddress({
       isDefault: isAddressDefault,
