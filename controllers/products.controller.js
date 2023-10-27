@@ -92,6 +92,43 @@ class ProductsController {
       },
     }).send(res);
   });
+  getSuggestProducts = catchAsync(async (req, res, next) => {
+    const { productId, itemsOfPage } = req.query;
+    const limitItems = itemsOfPage * 1 || PRODUCT_PAGINATION.LIMIT_ITEMS;
+    let results = [];
+    // find Category of current product
+    const findProduct = await ProductsService.findDetailProduct({
+      productId,
+    });
+    const { product_categories, product_gender } = findProduct;
+    const findSuggestProducts = await ProductsService.findAllParentSuggestProducts({
+      category: product_categories,
+      gender: product_gender,
+      limitItems,
+    });
+
+    const productPromises = findSuggestProducts.map(async (product) => {
+      const listChildProducts = await ProductsService.findAllChildProductsByParent({
+        parentProductId: product._id,
+      });
+      return {
+        ...unSelectFields({ fields: ["product_categories", "product_sizes", "product_description"], object: product }),
+        child_products: listChildProducts.map((child) =>
+          unSelectFields({ fields: ["product_categories", "product_sizes", "product_description"], object: child })
+        ),
+      };
+    });
+    results = await Promise.all(productPromises);
+    results = results.filter((item) => item._id.toString() !== productId);
+
+    return new OkResponse({
+      data: results,
+      metadata: {
+        limit: limitItems,
+        results: results.length,
+      },
+    }).send(res);
+  });
   getDetailProduct = catchAsync(async (req, res, next) => {
     const { productId } = req.params;
     if (!productId) {
@@ -103,12 +140,28 @@ class ProductsController {
     if (!detailProduct) {
       return next(new NotFoundError(PRODUCT_MESSAGES.PRODUCT_IS_NOT_EXISTS));
     }
-    const childProduct = await ProductsService.findAllChildProductsByParent({
-      parentProductId: productId,
-    });
+
+    // Find all color of product
+    let relationProducts = [];
+    if (!detailProduct.parent_product_id) {
+      // if current product is parent -> find all child product
+      const findChildProducts = await ProductsService.findAllChildProductsByParent({
+        parentProductId: productId,
+      });
+      relationProducts = [...[detailProduct], ...findChildProducts];
+    } else {
+      // current product is child -> find parent product first, find all child product except current product
+      const findParentProduct = await ProductsService.findDetailProduct({
+        productId: detailProduct.parent_product_id,
+      });
+      const findChildProducts = await ProductsService.findAllChildProductsByParent({
+        parentProductId: findParentProduct._id,
+      });
+      relationProducts = [...[findParentProduct], ...findChildProducts];
+    }
 
     return new OkResponse({
-      data: { ...detailProduct, child_products: childProduct },
+      data: { ...detailProduct, relation_products: relationProducts },
     }).send(res);
   });
   createProduct = catchAsync(async (req, res, next) => {

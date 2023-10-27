@@ -7,6 +7,7 @@ const router = express.Router();
 router.route("/").get(productsController.getAllParentProducts);
 router.route("/").post(authController.protect, authController.reStrictTo("admin"), productsController.createProduct);
 router.route("/latest-collection").get(productsController.getLatestProducts);
+router.route("/suggesting").get(productsController.getSuggestProducts);
 // Product review router
 router.use("/reviews", productReviewsRouters);
 

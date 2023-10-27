@@ -5,7 +5,7 @@ const PRODUCT_MESSAGES = {
   COLOR_MISSING: "Vui lòng nhập màu sản phẩm",
   COLOR_NAME_MISSING: "Vui lòng nhập tên màu sản phẩm",
   INPUT_MISSING: "Vui lòng nhập đầy đủ thông tin",
-  REVIEW_START_INVALID: "Số sao đánh giá phải từ 1 đến 5",
+  REVIEW_STAR_INVALID: "Số sao đánh giá phải từ 1 đến 5",
   REVIEW_COMMENT_INVALID: "Bình luận đánh giá phải từ 5 kí tự trở lên",
   CATEGORY_NAME_MISSING: "Vui lòng nhập tên danh mục",
   CATEGORY_KEY_WORD_MISSING: "Vui lòng nhập key word danh mục",

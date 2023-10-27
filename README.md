@@ -712,7 +712,7 @@ http://localhost:8084/api/v1/products/:productId
     "status": "Success",
     "message": "Success",
     "data": {
-        "_id": "65118dbdeb6baf6ff0fa1756",
+        "_id": "65118ec85700f56d346034e7",
         "product_categories": [
             {
                 "_id": "650ebe49baa58c5aece0d7ed",
@@ -737,7 +737,7 @@ http://localhost:8084/api/v1/products/:productId
             }
         ],
         "product_images": [
-            "https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/422992/item/vngoods_00_422992.jpg?width=750",
+            "https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/422992/item/vngoods_07_422992.jpg?width=750",
             "https://image.uniqlo.com/UQ/ST3/AsianCommon/imagesgoods/422992/sub/goods_422992_sub13.jpg?width=750",
             "https://image.uniqlo.com/UQ/ST3/AsianCommon/imagesgoods/422992/sub/goods_422992_sub14.jpg?width=750",
             "https://image.uniqlo.com/UQ/ST3/AsianCommon/imagesgoods/422992/sub/goods_422992_sub17.jpg?width=750",
@@ -750,20 +750,21 @@ http://localhost:8084/api/v1/products/:productId
         "product_gender": "men",
         "product_original_price": 293000,
         "status": true,
+        "parent_product_id": "65118dbdeb6baf6ff0fa1756",
         "product_name": "Áo Thun Cổ Tròn Ngắn Tay",
         "product_color": {
-            "_id": "650eb01246193f4ddcf7862c",
+            "_id": "650eb0d6b30a24284036ead1",
             "status": true,
-            "product_color_name": "Trắng",
-            "product_color_code": "#fff",
-            "createdAt": "2023-09-23T09:29:54.327Z",
-            "updatedAt": "2023-09-23T09:29:54.327Z",
+            "product_color_name": "Xám",
+            "product_color_code": "#dedede",
+            "createdAt": "2023-09-23T09:33:10.260Z",
+            "updatedAt": "2023-09-23T09:33:10.260Z",
             "__v": 0
         },
         "product_sizes": [
             {
                 "size_quantities": 1,
-                "_id": "65118dbdeb6baf6ff0fa1757",
+                "_id": "65118ec85700f56d346034e8",
                 "size_type": {
                     "_id": "650ea84a828567aff85ca68f",
                     "product_size_name": "XS"
@@ -771,7 +772,7 @@ http://localhost:8084/api/v1/products/:productId
             },
             {
                 "size_quantities": 1,
-                "_id": "65118dbdeb6baf6ff0fa1758",
+                "_id": "65118ec85700f56d346034e9",
                 "size_type": {
                     "_id": "650ea87a828567aff85ca690",
                     "product_size_name": "S"
@@ -779,7 +780,7 @@ http://localhost:8084/api/v1/products/:productId
             },
             {
                 "size_quantities": 1,
-                "_id": "65118dbdeb6baf6ff0fa1759",
+                "_id": "65118ec85700f56d346034ea",
                 "size_type": {
                     "_id": "650ea88a828567aff85ca691",
                     "product_size_name": "M"
@@ -787,7 +788,7 @@ http://localhost:8084/api/v1/products/:productId
             },
             {
                 "size_quantities": 1,
-                "_id": "65118dbdeb6baf6ff0fa175a",
+                "_id": "65118ec85700f56d346034eb",
                 "size_type": {
                     "_id": "650ea893828567aff85ca692",
                     "product_size_name": "L"
@@ -795,7 +796,7 @@ http://localhost:8084/api/v1/products/:productId
             },
             {
                 "size_quantities": 1,
-                "_id": "65118dbdeb6baf6ff0fa175b",
+                "_id": "65118ec85700f56d346034ec",
                 "size_type": {
                     "_id": "650ea8a4828567aff85ca693",
                     "product_size_name": "XL"
@@ -803,7 +804,7 @@ http://localhost:8084/api/v1/products/:productId
             },
             {
                 "size_quantities": 1,
-                "_id": "65118dbdeb6baf6ff0fa175c",
+                "_id": "65118ec85700f56d346034ed",
                 "size_type": {
                     "_id": "650ea8ae828567aff85ca694",
                     "product_size_name": "XXL"
@@ -812,15 +813,125 @@ http://localhost:8084/api/v1/products/:productId
         ],
         "product_description": [
             {
-                "_id": "652c9eb051cbb30f7002b089",
+                "_id": "652c9eb051cbb30f7002b08b",
                 "type": "overview",
                 "content": "Áo thun cổ tròn đơn giản bằng vải jersey dày dặn.- Vải jersey khô được dệt chặt có độ bền cao và vẫn giữ chất lượng cao sau mỗi lần giặt. - Thiết kế cổ tròn có dây buộc lấy cảm hứng từ đường viền cổ áo thun quân đội cổ điển. - Dây buộc giúp cổ áo giữ được hình dạng.- Kiểu dáng rộng rãi phù hợp với cả nam và nữ."
             }
         ],
-        "createdAt": "2023-09-25T13:40:13.757Z",
-        "updatedAt": "2023-10-16T02:23:44.761Z",
+        "createdAt": "2023-09-25T13:44:40.055Z",
+        "updatedAt": "2023-10-16T02:23:44.822Z",
         "__v": 0,
-        "child_products": [
+        "relation_products": [
+            {
+                "_id": "65118dbdeb6baf6ff0fa1756",
+                "product_categories": [
+                    {
+                        "_id": "650ebe49baa58c5aece0d7ed",
+                        "status": true,
+                        "product_category_name": "Áo",
+                        "product_category_keyword": "tops",
+                        "createdAt": "2023-09-23T10:30:33.702Z",
+                        "updatedAt": "2023-09-23T10:30:33.702Z",
+                        "__v": 0,
+                        "product_category_gender": "unisex"
+                    },
+                    {
+                        "_id": "650ebeb5baa58c5aece0d7ef",
+                        "status": true,
+                        "product_category_parent_id": "650ebe49baa58c5aece0d7ed",
+                        "product_category_name": "Áo Thun",
+                        "product_category_keyword": "t-shirts",
+                        "createdAt": "2023-09-23T10:32:21.726Z",
+                        "updatedAt": "2023-09-23T10:32:21.726Z",
+                        "__v": 0,
+                        "product_category_gender": "unisex"
+                    }
+                ],
+                "product_images": [
+                    "https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/422992/item/vngoods_00_422992.jpg?width=750",
+                    "https://image.uniqlo.com/UQ/ST3/AsianCommon/imagesgoods/422992/sub/goods_422992_sub13.jpg?width=750",
+                    "https://image.uniqlo.com/UQ/ST3/AsianCommon/imagesgoods/422992/sub/goods_422992_sub14.jpg?width=750",
+                    "https://image.uniqlo.com/UQ/ST3/AsianCommon/imagesgoods/422992/sub/goods_422992_sub17.jpg?width=750",
+                    "https://image.uniqlo.com/UQ/ST3/AsianCommon/imagesgoods/422992/sub/goods_422992_sub18.jpg?width=750",
+                    "https://image.uniqlo.com/UQ/ST3/AsianCommon/imagesgoods/422992/sub/goods_422992_sub19.jpg?width=750",
+                    "https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/422992/sub/vngoods_422992_sub28.jpg?width=750",
+                    "https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/422992/sub/vngoods_422992_sub29.jpg?width=750",
+                    "https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/422992/sub/vngoods_422992_sub30.jpg?width=750"
+                ],
+                "product_gender": "men",
+                "product_original_price": 293000,
+                "status": true,
+                "product_name": "Áo Thun Cổ Tròn Ngắn Tay",
+                "product_color": {
+                    "_id": "650eb01246193f4ddcf7862c",
+                    "status": true,
+                    "product_color_name": "Trắng",
+                    "product_color_code": "#fff",
+                    "createdAt": "2023-09-23T09:29:54.327Z",
+                    "updatedAt": "2023-09-23T09:29:54.327Z",
+                    "__v": 0
+                },
+                "product_sizes": [
+                    {
+                        "size_quantities": 1,
+                        "_id": "65118dbdeb6baf6ff0fa1757",
+                        "size_type": {
+                            "_id": "650ea84a828567aff85ca68f",
+                            "product_size_name": "XS"
+                        }
+                    },
+                    {
+                        "size_quantities": 1,
+                        "_id": "65118dbdeb6baf6ff0fa1758",
+                        "size_type": {
+                            "_id": "650ea87a828567aff85ca690",
+                            "product_size_name": "S"
+                        }
+                    },
+                    {
+                        "size_quantities": 1,
+                        "_id": "65118dbdeb6baf6ff0fa1759",
+                        "size_type": {
+                            "_id": "650ea88a828567aff85ca691",
+                            "product_size_name": "M"
+                        }
+                    },
+                    {
+                        "size_quantities": 1,
+                        "_id": "65118dbdeb6baf6ff0fa175a",
+                        "size_type": {
+                            "_id": "650ea893828567aff85ca692",
+                            "product_size_name": "L"
+                        }
+                    },
+                    {
+                        "size_quantities": 1,
+                        "_id": "65118dbdeb6baf6ff0fa175b",
+                        "size_type": {
+                            "_id": "650ea8a4828567aff85ca693",
+                            "product_size_name": "XL"
+                        }
+                    },
+                    {
+                        "size_quantities": 1,
+                        "_id": "65118dbdeb6baf6ff0fa175c",
+                        "size_type": {
+                            "_id": "650ea8ae828567aff85ca694",
+                            "product_size_name": "XXL"
+                        }
+                    }
+                ],
+                "product_description": [
+                    {
+                        "_id": "652c9eb051cbb30f7002b089",
+                        "type": "overview",
+                        "content": "Áo thun cổ tròn đơn giản bằng vải jersey dày dặn.- Vải jersey khô được dệt chặt có độ bền cao và vẫn giữ chất lượng cao sau mỗi lần giặt. - Thiết kế cổ tròn có dây buộc lấy cảm hứng từ đường viền cổ áo thun quân đội cổ điển. - Dây buộc giúp cổ áo giữ được hình dạng.- Kiểu dáng rộng rãi phù hợp với cả nam và nữ."
+                    }
+                ],
+                "createdAt": "2023-09-25T13:40:13.757Z",
+                "updatedAt": "2023-10-16T02:23:44.761Z",
+                "__v": 0
+            },
             {
                 "_id": "65118ec85700f56d346034e7",
                 "product_categories": [
@@ -1269,4 +1380,91 @@ http://localhost:8084/api/v1/products/:productId
     },
     "metadata": {}
 }
+```
+
+### Get suggest products from current product
+
+```
+http://localhost:8084/api/v1/products/suggesting
+```
+
+**Method:** GET
+<br>
+**Query params**:
+
+```
+productId
+itemsOfPage
+
+```
+
+**Response:**
+
+```
+
+```
+
+### Get reviews product
+
+```
+http://localhost:8084/api/v1/products/reviews
+```
+
+**Method:** GET
+<br>
+**Query params**:
+
+```
+productId
+page
+itemsOfPage
+sort = "desc" // "desc" || "asc"
+rating = "all" // 1 || 2 || 3 || 4 || 5 || "all"
+type = "all" // "image" || "all"
+
+```
+
+**Response:**
+
+```
+
+```
+
+### Get rating overview reviews product
+
+```
+http://localhost:8084/api/v1/products/reviews/rating-overview
+```
+
+**Method:** GET
+<br>
+**Query params**:
+
+```
+productId
+
+```
+
+**Response:**
+
+```
+{
+    "statusCode": 200,
+    "status": "Success",
+    "message": "Success",
+    "data": {
+        "average": 5, // avarage 5 star on 5 star
+        "count_1": 0, // count rating 1 star
+        "count_2": 0, // count rating 2 star
+        "count_3": 0, // count rating 3 star
+        "count_4": 0, // count rating 4 star
+        "count_5": 1, // count rating 5 star
+        "count_reviews": 1 // count all review
+    },
+    "metadata": {
+        "productId": "652c954e8b70bf0b84037396",
+        "results": 0
+    }
+}
+
 ```

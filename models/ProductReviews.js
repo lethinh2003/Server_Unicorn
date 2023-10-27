@@ -15,11 +15,15 @@ const productReviewSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "Products",
     },
-    review_start: {
+    product_size: {
+      type: mongoose.Schema.ObjectId,
+      ref: "ProductSizes",
+    },
+    review_star: {
       type: Number,
       default: 5,
-      min: [1, PRODUCT_MESSAGES.REVIEW_START_INVALID],
-      max: [5, PRODUCT_MESSAGES.REVIEW_START_INVALID],
+      min: [1, PRODUCT_MESSAGES.REVIEW_STAR_INVALID],
+      max: [5, PRODUCT_MESSAGES.REVIEW_STAR_INVALID],
     },
     review_comment: {
       type: String,

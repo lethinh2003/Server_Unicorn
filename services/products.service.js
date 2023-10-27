@@ -64,6 +64,23 @@ class ProductsService {
       .lean();
     return results;
   };
+  static findAllParentSuggestProducts = async ({ category, gender, limitItems }) => {
+    let query = {
+      status: true,
+      product_gender: gender,
+      $or: [{ parent_product_id: null }, { parent_product_id: undefined }],
+      product_categories: category,
+    };
+    const countDocuments = await Products.countDocuments(query);
+
+    const random = Math.floor(Math.random() * countDocuments);
+    const results = await Products.find(query)
+      .populate("product_color product_sizes.size_type product_categories")
+      .limit(limitItems)
+      .skip(random)
+      .lean();
+    return results;
+  };
   static findAllProductsByFilter = async ({ category, gender, skipItems, limitItems, color, size }) => {
     let query = {
       status: true,
@@ -90,6 +107,16 @@ class ProductsService {
   };
   static findAllChildProductsByParent = async ({ parentProductId }) => {
     const results = await Products.find({
+      parent_product_id: parentProductId,
+      status: true,
+    })
+      .populate("product_color product_sizes.size_type product_categories")
+      .lean();
+    return results;
+  };
+  static findAllChildProductsByParentExceptCurrent = async ({ parentProductId, currentProductId }) => {
+    const results = await Products.find({
+      _id: { $ne: currentProductId },
       parent_product_id: parentProductId,
       status: true,
     })
