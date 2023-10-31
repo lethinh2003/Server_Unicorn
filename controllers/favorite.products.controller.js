@@ -10,13 +10,6 @@ const { PRODUCT_PAGINATION } = require("../configs/config.product.pagination");
 const { PRODUCT_MESSAGES } = require("../configs/config.product.messages");
 
 class FavoriteProductsController {
-  getAllFavoriteProducts = catchAsync(async (req, res, next) => {
-    const results = await FavoriteProductsService.findAllFavoriteProducts({});
-
-    return new OkResponse({
-      data: results,
-    }).send(res);
-  });
   getFavoriteProducts = catchAsync(async (req, res, next) => {
     const { itemsOfPage, page } = req.query;
     const { _id: userId } = req.user;
@@ -35,6 +28,20 @@ class FavoriteProductsController {
       metadata: {
         page: currentPage,
         limit: limitItems,
+        userId,
+        results: results.length,
+      },
+    }).send(res);
+  });
+  getAllFavoriteProducts = catchAsync(async (req, res, next) => {
+    const { _id: userId } = req.user;
+    const results = await FavoriteProductsService.findAllFavoriteProductsByUser({
+      userId,
+    });
+
+    return new OkResponse({
+      data: results.flatMap((productId) => productId.product_id),
+      metadata: {
         userId,
         results: results.length,
       },
@@ -67,7 +74,63 @@ class FavoriteProductsController {
     });
 
     return new CreatedResponse({
+      message: PRODUCT_MESSAGES.CREATE_FAVORITE_PRODUCT_SUCCESS,
       data: results,
+    }).send(res);
+  });
+  removeFavoriteProduct = catchAsync(async (req, res, next) => {
+    const { _id: userId } = req.user;
+    const { productId } = req.body;
+    if (!productId) {
+      return next(new UnauthorizedError(PRODUCT_MESSAGES.INPUT_MISSING));
+    }
+    // Check product is exists
+    const findProduct = await ProductsService.findDetailProduct({
+      productId,
+    });
+    if (!findProduct) {
+      return next(new BadRequestError(PRODUCT_MESSAGES.PRODUCT_IS_NOT_EXISTS));
+    }
+    // Check favorite product is exist
+    const findFavoriteProduct = await FavoriteProductsService.findFavoriteProductByProduct({
+      userId,
+      productId,
+    });
+    if (!findFavoriteProduct) {
+      return next(new BadRequestError(PRODUCT_MESSAGES.FAVORITE_IS_NOT_EXISTS));
+    }
+    const results = await FavoriteProductsService.deleteFavoriteProduct({
+      userId,
+      productId,
+    });
+
+    return new OkResponse({
+      message: PRODUCT_MESSAGES.DELETE_FAVORITE_PRODUCT_SUCCESS,
+    }).send(res);
+  });
+  checkExistFavoriteProduct = catchAsync(async (req, res, next) => {
+    const { _id: userId } = req.user;
+    const { productId } = req.body;
+    if (!productId) {
+      return next(new UnauthorizedError(PRODUCT_MESSAGES.INPUT_MISSING));
+    }
+    // Check product is exists
+    const findProduct = await ProductsService.findDetailProduct({
+      productId,
+    });
+
+    if (!findProduct) {
+      return next(new BadRequestError(PRODUCT_MESSAGES.PRODUCT_IS_NOT_EXISTS));
+    }
+
+    // Check favorite product is exist
+    const findFavoriteProduct = await FavoriteProductsService.findFavoriteProductByProduct({
+      userId,
+      productId,
+    });
+
+    return new OkResponse({
+      data: !!findFavoriteProduct,
     }).send(res);
   });
 }

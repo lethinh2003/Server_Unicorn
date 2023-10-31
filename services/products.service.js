@@ -41,26 +41,17 @@ class ProductsService {
 
     return true;
   };
-  static findAllParentProducts = async ({ category, gender, skipItems, limitItems, color, size }) => {
+  static findAllParentProducts = async ({ skipItems, limitItems }) => {
     let query = {
       status: true,
-      product_gender: gender,
       $or: [{ parent_product_id: null }, { parent_product_id: undefined }],
     };
-    if (category !== "all") {
-      query.product_categories = category;
-    }
-    if (color !== "all") {
-      query.product_color = color;
-    }
-    if (size !== "all") {
-      query.product_sizes = { $elemMatch: { size_type: size } };
-    }
 
     const results = await Products.find(query)
       .populate("product_color product_sizes.size_type product_categories")
       .limit(limitItems)
       .skip(skipItems)
+      .sort("-createdAt")
       .lean();
     return results;
   };

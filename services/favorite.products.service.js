@@ -21,6 +21,17 @@ class FavoriteProductsService {
       .lean();
     return results;
   };
+  static findAllFavoriteProductsByUser = async ({ userId }) => {
+    const results = await FavoriteProducts.find({
+      user: userId,
+    })
+      .populate({
+        path: "product_id",
+        select: "_id",
+      })
+      .lean();
+    return results;
+  };
   static findFavoriteProductByProduct = async ({ userId, productId }) => {
     const result = await FavoriteProducts.findOne({
       user: userId,
@@ -31,6 +42,13 @@ class FavoriteProductsService {
 
   static createFavoriteProduct = async ({ userId, productId }) => {
     const result = await FavoriteProducts.create({
+      user: userId,
+      product_id: productId,
+    });
+    return result;
+  };
+  static deleteFavoriteProduct = async ({ userId, productId }) => {
+    const result = await FavoriteProducts.findOneAndDelete({
       user: userId,
       product_id: productId,
     });

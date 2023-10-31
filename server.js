@@ -65,6 +65,7 @@ global._io.on("connection", SocketServices.connection);
 
 server.listen(port, () => {
   console.log("Server đang chay tren cong", port);
+  console.log("http://localhost:" + port);
 });
 process.on("unhandledRejection", (err) => {
   console.log("UNHANDLED REJECTION! 💥 Shutting down...");

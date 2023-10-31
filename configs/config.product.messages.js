@@ -18,7 +18,10 @@ const PRODUCT_MESSAGES = {
 
   REVIEW_IS_EXISTS: "Review đã tồn tại",
 
+  CREATE_FAVORITE_PRODUCT_SUCCESS: "Thêm vào danh sách yêu thích thành công",
+  DELETE_FAVORITE_PRODUCT_SUCCESS: "Xóa khỏi danh sách yêu thích thành công",
   FAVORITE_IS_EXISTS: "Sản phẩm đã được thêm vào danh sách yêu thích",
+  FAVORITE_IS_NOT_EXISTS: "Sản phẩm chưa được thêm vào danh sách yêu thích",
   PRODUCT_IS_NOT_EXISTS: "Sản phẩm không tồn tại",
   PRODUCT_IS_NOT_AVAILABLE: "Sản phẩm không có sẵn hàng",
 };

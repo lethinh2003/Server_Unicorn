@@ -4,6 +4,8 @@ const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsdoc = require("swagger-jsdoc");
 dotenv.config({ path: "./config.env" });
 const app = express();
 const { NotFoundError } = require("./utils/app_error");
@@ -57,11 +59,60 @@ app.use((req, res, next) => {
   req.timeNow = new Date().toISOString();
   next();
 });
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Unicorn API",
+      version: "1.0.0",
+      description: "API dành cho Unicorn - Trang web bán quần áo thời trang",
+      contact: {
+        name: "Le Thinh",
+        url: "https://lethinh-blog.site",
+      },
+    },
+    servers: [
+      {
+        url: "http://localhost:8084/api/v1",
+        description: "Development server",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          description: "Điền access token vào đây",
+        },
+        clientIdAuth: {
+          type: "apiKey",
+          name: "X-client-id",
+          in: "header",
+          description: "Điền id của user vào đây",
+        },
+      },
+    },
+  },
+  apis: ["./routers/*.routers.js"], // files containing annotations as above
+};
+
+const openapiSpecification = swaggerJsdoc(options);
+const customSiteTitle = "Tài liệu Unicorn API";
 
 //routers
 app.get("/", (req, res) => {
   res.status(200).send("Hello World");
 });
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openapiSpecification, {
+    customSiteTitle,
+  })
+);
+
 app.use("/api/v1/carts", cartsRouters);
 app.use("/api/v1/vouchers", vouchersRouters);
 app.use("/api/v1/users", userRouters);
