@@ -16,12 +16,10 @@ class CartsService {
   };
 
   static createCart = async ({ userId }) => {
-    const result = await Carts.create({
+    const { _doc } = await Carts.create({
       user: userId,
-      products: [],
     });
-
-    return result;
+    return _doc;
   };
   static updateProduct = async ({ cartId, product }) => {
     const { product: productId, size, quantities, price } = product;
