@@ -7,12 +7,14 @@ const xss = require("xss-clean");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 dotenv.config({ path: "./config.env" });
+const path = require("path");
 const app = express();
 const { NotFoundError } = require("./utils/app_error");
 const {
   endpoint: { client },
 } = require("./configs/config.endpoint");
 const errorController = require("./controllers/error_controller");
+const { UPLOAD_PATH } = require("./configs/config.upload.path");
 const userRouters = require("./routers/users.routers");
 const productSizesRouters = require("./routers/product.sizes.routers");
 const productColorsRouters = require("./routers/product.colors.routers");
@@ -22,6 +24,7 @@ const favoriteProductsRouters = require("./routers/favorite.products.routers");
 const productsRouters = require("./routers/products.routers");
 const vouchersRouters = require("./routers/vouchers.routers");
 const cartsRouters = require("./routers/carts.routers");
+const uploadRouters = require("./routers/upload.routers");
 
 const cors = require("cors");
 const { convertDateTime } = require("./utils/convertTime");
@@ -50,9 +53,6 @@ app.use(mongoSanitize());
 //against XSS (HTML, JS)
 
 app.use(xss());
-
-//serving static file
-app.use(express.static(`${__dirname}/public`));
 
 //test middleware
 app.use((req, res, next) => {
@@ -112,7 +112,8 @@ app.use(
     customSiteTitle,
   })
 );
-
+app.use("/public/uploads", express.static(path.join(__dirname, UPLOAD_PATH.PRIMARY_DIR)));
+app.use("/api/v1/uploads", uploadRouters);
 app.use("/api/v1/carts", cartsRouters);
 app.use("/api/v1/vouchers", vouchersRouters);
 app.use("/api/v1/users", userRouters);

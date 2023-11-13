@@ -6,6 +6,13 @@ class FavoriteProductsService {
     const results = await FavoriteProducts.find({}).lean();
     return results;
   };
+  static countAllFavoriteProducts = async ({ userId }) => {
+    const results = await FavoriteProducts.countDocuments({
+      user: userId,
+    });
+    return results;
+  };
+
   static findFavoriteProductsByUser = async ({ userId, limitItems, skipItems }) => {
     const results = await FavoriteProducts.find({
       user: userId,

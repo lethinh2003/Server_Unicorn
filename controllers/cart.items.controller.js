@@ -27,11 +27,23 @@ class CartItemsController {
     const findAllCartItems = await CartItemsService.findAllByCart({
       cartdId: cart._id,
     });
+    // filter all invalid product
+
+    let results = findAllCartItems.filter((item) => {
+      if (item.data.product !== null) {
+        if (item.data.product.status === false) {
+          return false;
+        }
+        return true;
+      }
+      return false;
+    });
+
     return new OkResponse({
-      data: findAllCartItems,
+      data: results,
       metadata: {
         userId,
-        results: findAllCartItems.length,
+        results: results.length,
       },
     }).send(res);
   });

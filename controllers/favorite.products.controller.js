@@ -22,6 +22,9 @@ class FavoriteProductsController {
       limitItems,
       skipItems,
     });
+    const countAllFavoriteProducts = await FavoriteProductsService.countAllFavoriteProducts({
+      userId,
+    });
 
     return new OkResponse({
       data: results,
@@ -30,6 +33,7 @@ class FavoriteProductsController {
         limit: limitItems,
         userId,
         results: results.length,
+        countAll: countAllFavoriteProducts,
       },
     }).send(res);
   });

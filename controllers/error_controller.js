@@ -16,6 +16,11 @@ const handleValidationErrorDB = (err) => {
   return new BadRequestError(message);
 };
 
+const handleMulterError = (err) => {
+  const message = err.message;
+  return new BadRequestError(message);
+};
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     statusCode: err.statusCode,
@@ -64,6 +69,10 @@ module.exports = (err, req, res, next) => {
     }
     if (error.name === "ValidationError") {
       error = handleValidationErrorDB(error);
+    }
+
+    if (error.name === "MulterError") {
+      error = handleMulterError(error);
     }
 
     sendErrorProd(error, res);
