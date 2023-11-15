@@ -12,9 +12,11 @@ const {
 } = require("../configs/config.pagination");
 const UsersService = require("../services/users.service");
 const { USER_MESSAGES } = require("../configs/config.user.messages");
+const Fuse = require("fuse.js");
+
 class VouchersController {
   getUserVouchers = catchAsync(async (req, res, next) => {
-    const { itemsOfPage, page } = req.query;
+    const { itemsOfPage, page, search = "" } = req.query;
     const { _id: userId } = req.user;
 
     const limitItems = itemsOfPage * 1 || LIMIT_ITEMS;
@@ -25,13 +27,30 @@ class VouchersController {
       limitItems,
       skipItems,
     });
+    const countAllItems = await VouchersService.countAllByUser({ userId });
+
+    const fuseOptions = {
+      threshold: 0.1,
+      keys: ["discount", "code", "description"],
+    };
+
+    const fuse = new Fuse(results, fuseOptions);
+    let lastResults = [];
+    if (search) {
+      lastResults = fuse.search(search).flatMap((item) => item.item);
+    } else {
+      lastResults = fuse._docs;
+    }
+
     return new OkResponse({
-      data: results,
+      data: lastResults,
       metadata: {
+        countAll: countAllItems,
         page: currentPage,
         limit: limitItems,
         userId,
-        results: results.length,
+        search,
+        results: lastResults.length,
       },
     }).send(res);
   });

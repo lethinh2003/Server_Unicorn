@@ -2,12 +2,19 @@
 const Vouchers = require("../models/Vouchers");
 
 class VouchersService {
-  static findByUser = async ({ userId, limitItems, skipItems }) => {
+  static countAllByUser = async ({ userId }) => {
+    const results = await Vouchers.countDocuments({
+      user: userId,
+    });
+    return results;
+  };
+  static findByUser = async ({ userId, limitItems, skipItems, sort = "expired_date" }) => {
     const results = await Vouchers.find({
       user: userId,
     })
       .skip(skipItems)
       .limit(limitItems)
+      .sort(sort)
       .lean();
     return results;
   };

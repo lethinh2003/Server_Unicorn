@@ -21,6 +21,17 @@ class CartsService {
     });
     return _doc;
   };
+  static updateCartVoucher = async ({ userId, voucherId }) => {
+    const result = await Carts.findOneAndUpdate(
+      {
+        user: userId,
+      },
+      {
+        voucher: voucherId,
+      }
+    );
+    return result;
+  };
   static updateProduct = async ({ cartId, product }) => {
     const { product: productId, size, quantities, price } = product;
     const result = await Carts.findOneAndUpdate(

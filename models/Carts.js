@@ -7,6 +7,10 @@ const cartsSchema = new mongoose.Schema(
       ref: "Users",
       unique: true,
     },
+    voucher: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Vouchers",
+    },
     totalAmount: {
       type: Number,
       default: 0,

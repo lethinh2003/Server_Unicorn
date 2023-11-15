@@ -4,12 +4,14 @@ const { CART_MESSAGES } = require("../configs/config.cart.messages");
 const { PRODUCT_MESSAGES } = require("../configs/config.product.messages");
 const { USER_MESSAGES } = require("../configs/config.user.messages");
 const CartsService = require("../services/carts.service");
+const VouchersService = require("../services/vouchers.service");
 const CartItemsService = require("../services/cart.items.service");
 const ProductsService = require("../services/products.service");
 const { NotFoundError, BadRequestError, UnauthorizedError } = require("../utils/app_error");
 const catchAsync = require("../utils/catch_async");
 const { OkResponse, CreatedResponse } = require("../utils/success_response");
 const { PRODUCT_PAGINATION } = require("../configs/config.product.pagination");
+const { VOUCHER_MESSAGES } = require("../configs/config.voucher.messages");
 
 class CartsController {
   getUserCart = catchAsync(async (req, res, next) => {
@@ -156,6 +158,35 @@ class CartsController {
     return new OkResponse({
       message: CART_MESSAGES.ADD_PRODUCT_SUCCESS,
     }).send(res);
+  });
+  checkVoucher = catchAsync(async (req, res, next) => {
+    const { _id: userId } = req.user;
+    const { voucherId } = req.body;
+    if (!voucherId) {
+      return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
+    }
+    // Check user has a cart?
+    const checkCartIsExists = await CartsService.findOneByUser({
+      userId,
+    });
+    if (!checkCartIsExists) {
+      return next(new BadRequestError(CART_MESSAGES.CART_IS_NOT_EXISTS));
+    }
+    // Check voucher is exist
+    const checkVoucherIsExists = await VouchersService.findOneByUserAndId({
+      userId,
+      voucherId,
+    });
+    if (!checkVoucherIsExists) {
+      return next(new BadRequestError(VOUCHER_MESSAGES.CODE_IS_NOT_EXISTS));
+    }
+    // Update cart
+    await CartsService.updateCartVoucher({
+      userId,
+      voucherId,
+    });
+
+    return new OkResponse({}).send(res);
   });
 }
 
