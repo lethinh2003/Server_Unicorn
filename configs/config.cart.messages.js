@@ -1,4 +1,6 @@
 const CART_MESSAGES = {
+  MIN_ORDER_QUANTITY_VOUCHER_INVALID: "Số lượng tối thiểu sản phẩm áp dụng chưa đáp ứng",
+  MIN_ORDER_AMOUNT_VOUCHER_INVALID: "Tổng tiền hàng tối thiểu để áp dụng chưa đáp ứng",
   CART_IS_EXISTS: "Giỏ hàng đã tồn tại",
   CART_IS_NOT_EXISTS: "Giỏ hàng chưa tồn tại",
   ADD_CART_SUCCESS: "Tạo giỏ hàng thành công",

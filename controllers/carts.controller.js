@@ -15,15 +15,12 @@ const { VOUCHER_MESSAGES } = require("../configs/config.voucher.messages");
 
 class CartsController {
   getUserCart = catchAsync(async (req, res, next) => {
-    const { itemsOfPage, page } = req.query;
     const { _id: userId } = req.user;
-
-    const limitItems = itemsOfPage * 1 || PRODUCT_PAGINATION.LIMIT_ITEMS;
-    const currentPage = page * 1 || 1;
-    const skipItems = (currentPage - 1) * limitItems;
-
     let cart = await CartsService.findOneByUser({
       userId,
+      populate: {
+        path: "voucher",
+      },
     });
     // if cart doesn't exist -> create new cart
     if (!cart) {
@@ -31,18 +28,11 @@ class CartsController {
         userId,
       });
     }
-    const findCartItems = await CartItemsService.findAllByCart({
-      cartdId: cart._id,
-      limitItems,
-      skipItems,
-    });
+
     return new OkResponse({
-      data: { ...cart, items: findCartItems },
+      data: cart,
       metadata: {
-        page: currentPage,
-        limit: limitItems,
         userId,
-        results: findCartItems.length,
       },
     }).send(res);
   });
@@ -180,6 +170,25 @@ class CartsController {
     if (!checkVoucherIsExists) {
       return next(new BadRequestError(VOUCHER_MESSAGES.CODE_IS_NOT_EXISTS));
     }
+    const getCartItems = await CartItemsService.findAllByCart({
+      cartdId: checkCartIsExists._id,
+    });
+    const getTotalAmountCartItems = () => {
+      let totalPrice = 0;
+      getCartItems.forEach((item) => {
+        totalPrice += item.data.product.product_original_price * item.data.quantities;
+      });
+      return totalPrice;
+    };
+    // Check quantity cart item is ok
+    if (getCartItems.length < checkVoucherIsExists.min_order_quantity) {
+      return next(new BadRequestError(CART_MESSAGES.MIN_ORDER_QUANTITY_VOUCHER_INVALID));
+    }
+    // Check amount cart item is ok
+    if (getTotalAmountCartItems() < checkVoucherIsExists.min_order_amount) {
+      return next(new BadRequestError(CART_MESSAGES.MIN_ORDER_AMOUNT_VOUCHER_INVALID));
+    }
+
     // Update cart
     await CartsService.updateCartVoucher({
       userId,
