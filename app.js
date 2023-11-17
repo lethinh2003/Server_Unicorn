@@ -24,6 +24,7 @@ const favoriteProductsRouters = require("./routers/favorite.products.routers");
 const productsRouters = require("./routers/products.routers");
 const vouchersRouters = require("./routers/vouchers.routers");
 const cartsRouters = require("./routers/carts.routers");
+const ordersRouters = require("./routers/orders.routers");
 const uploadRouters = require("./routers/upload.routers");
 
 const cors = require("cors");
@@ -114,6 +115,7 @@ app.use(
 );
 app.use("/public/uploads", express.static(path.join(__dirname, UPLOAD_PATH.PRIMARY_DIR)));
 app.use("/api/v1/uploads", uploadRouters);
+app.use("/api/v1/orders", ordersRouters);
 app.use("/api/v1/carts", cartsRouters);
 app.use("/api/v1/vouchers", vouchersRouters);
 app.use("/api/v1/users", userRouters);

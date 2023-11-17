@@ -6,10 +6,14 @@ class CartsService {
     const results = await Carts.find({}).skip(skipItems).limit(limitItems).lean();
     return results;
   };
-  static findOneByUser = async ({ userId, populate }) => {
-    const result = await Carts.findOne({
-      user: userId,
-    })
+  static findOneByUser = async ({ userId, populate, options = {} }) => {
+    const result = await Carts.findOne(
+      {
+        user: userId,
+      },
+      null,
+      options
+    )
       .populate(populate)
       .lean();
     return result;

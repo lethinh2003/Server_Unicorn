@@ -1,6 +1,7 @@
 const VOUCHER_MESSAGES = {
   CODE_IS_EXISTS: "Mã giảm giá đã tồn tại",
   CODE_IS_NOT_EXISTS: "Mã giảm giá không tồn tại",
+  CODE_IS_EXPIRED: "Mã giảm giá đã hết hạn sử dụng",
   CODE_IS_MISSING: "Vui lòng nhập mã giảm giá",
   CODE_MIN_LENGTH: "Mã giảm giá tối thiểu 8 kí tự",
 

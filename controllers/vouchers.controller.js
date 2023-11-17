@@ -22,6 +22,8 @@ class VouchersController {
     const limitItems = itemsOfPage * 1 || LIMIT_ITEMS;
     const currentPage = page * 1 || 1;
     const skipItems = (currentPage - 1) * limitItems;
+    // Update Expired Vouchers
+    await VouchersService.updateExpiredVouchers({ userId });
     const results = await VouchersService.findByUser({
       userId,
       limitItems,

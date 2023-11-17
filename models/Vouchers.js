@@ -56,6 +56,21 @@ const vouchersSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
+vouchersSchema.statics.updateExpiredVouchers = async function ({ userId }) {
+  try {
+    const currentDate = new Date();
+    const results = await this.updateMany(
+      { user: userId, expired_date: { $lt: currentDate }, status: true },
+      {
+        status: false,
+      }
+    );
+    return results;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
 const Vouchers = mongoose.model(COLLECTION_NAME, vouchersSchema);
+
 module.exports = Vouchers;

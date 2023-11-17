@@ -31,16 +31,30 @@ class CartItemsService {
       .lean();
     return results;
   };
-  static findAllByCart = async ({ cartdId }) => {
+  static findAllByCart = async ({ cartId, options = {} }) => {
     const results = await CartItems.find({
-      cart_id: cartdId,
+      cart_id: cartId,
     })
+      .session(options?.session || null)
       .lean()
       .populate({
         path: "data.product",
         populate: "product_color",
       })
       .populate("data.size");
+    return results;
+  };
+  // Remove all invalid products
+  static listRemoveInvalidProducts = ({ listCartItems }) => {
+    const results = listCartItems.filter((item) => {
+      if (item.data.product !== null) {
+        if (item.data.product.status === false) {
+          return false;
+        }
+        return true;
+      }
+      return false;
+    });
     return results;
   };
   static createNewCartItem = async ({ userId, cartId, data }) => {
@@ -77,6 +91,17 @@ class CartItemsService {
       _id: cartItemId,
       user_id: userId,
     });
+
+    return result;
+  };
+  static deleteCartItemsByCartId = async ({ cartId, userId, options = {} }) => {
+    const result = await CartItems.deleteMany(
+      {
+        cart_id: cartId,
+        user_id: userId,
+      },
+      options
+    );
 
     return result;
   };

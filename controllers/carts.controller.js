@@ -171,7 +171,7 @@ class CartsController {
       return next(new BadRequestError(VOUCHER_MESSAGES.CODE_IS_NOT_EXISTS));
     }
     const getCartItems = await CartItemsService.findAllByCart({
-      cartdId: checkCartIsExists._id,
+      cartId: checkCartIsExists._id,
     });
     const getTotalAmountCartItems = () => {
       let totalPrice = 0;

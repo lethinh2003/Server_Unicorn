@@ -5,6 +5,10 @@ const handleCastErrorDB = (err) => {
   return new BadRequestError(message);
 };
 
+const handleTransactionErrorDB = (err) => {
+  const message = `Có lỗi trong quá trình xử lý, vui lòng thử lại`;
+  return new BadRequestError(message);
+};
 const handleDuplicateFieldsDB = (err) => {
   const value = err.message.match(/(["'])(\\?.)*?\1/)[0];
   const message = `Giá trị ${value} đã tồn tại. Vui lòng thử lại!`;
@@ -61,6 +65,9 @@ module.exports = (err, req, res, next) => {
   } else {
     // let error = JSON.parse(JSON.stringify(err));
     let error = err;
+    if (error.code === 112) {
+      error = handleTransactionErrorDB(error);
+    }
     if (error.name === "CastError") {
       error = handleCastErrorDB(error);
     }

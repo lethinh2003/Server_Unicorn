@@ -25,7 +25,7 @@ class CartItemsController {
       });
     }
     const findAllCartItems = await CartItemsService.findAllByCart({
-      cartdId: cart._id,
+      cartId: cart._id,
     });
     // filter all invalid product
 

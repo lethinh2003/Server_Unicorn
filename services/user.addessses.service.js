@@ -9,6 +9,7 @@ class UserAddressesService {
   static findAddressesByUser = async ({ userId }) => {
     const results = await UserAddresses.find({
       user_id: userId,
+      status: true,
     }).lean();
 
     return results;
@@ -16,18 +17,25 @@ class UserAddressesService {
   static findAddressesPaginationByUser = async ({ userId, limitItems, skipItems }) => {
     const results = await UserAddresses.find({
       user_id: userId,
+      status: true,
     })
       .skip(skipItems)
       .limit(limitItems)
+      .sort("-default")
       .lean();
 
     return results;
   };
-  static findAddressesByUserAndId = async ({ userId, addressId }) => {
-    const results = await UserAddresses.findOne({
-      user_id: userId,
-      _id: addressId,
-    }).lean();
+  static findAddressesByUserAndId = async ({ userId, addressId, options = {} }) => {
+    const results = await UserAddresses.findOne(
+      {
+        user_id: userId,
+        _id: addressId,
+        status: true,
+      },
+      null,
+      options
+    ).lean();
 
     return results;
   };
@@ -40,10 +48,15 @@ class UserAddressesService {
     return result;
   };
   static deleteAddressesByUserAndId = async ({ userId, addressId }) => {
-    const result = await UserAddresses.findOneAndDelete({
-      user_id: userId,
-      _id: addressId,
-    }).lean();
+    const result = await UserAddresses.findOneAndUpdate(
+      {
+        user_id: userId,
+        _id: addressId,
+      },
+      {
+        status: false,
+      }
+    ).lean();
     return result;
   };
 
