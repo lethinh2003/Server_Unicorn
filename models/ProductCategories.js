@@ -8,6 +8,9 @@ const productCategorySchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "ProductCategories",
     },
+    product_category_image: {
+      type: String,
+    },
     product_category_name: {
       type: String,
       unique: true,
