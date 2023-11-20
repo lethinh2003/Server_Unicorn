@@ -26,6 +26,7 @@ const vouchersRouters = require("./routers/vouchers.routers");
 const cartsRouters = require("./routers/carts.routers");
 const ordersRouters = require("./routers/orders.routers");
 const uploadRouters = require("./routers/upload.routers");
+const adminRouters = require("./routers/admins.routers");
 
 const cors = require("cors");
 const { convertDateTime } = require("./utils/convertTime");
@@ -114,6 +115,7 @@ app.use(
   })
 );
 app.use("/public/uploads", express.static(path.join(__dirname, UPLOAD_PATH.PRIMARY_DIR)));
+app.use("/api/v1/admins", adminRouters);
 app.use("/api/v1/uploads", uploadRouters);
 app.use("/api/v1/orders", ordersRouters);
 app.use("/api/v1/carts", cartsRouters);
