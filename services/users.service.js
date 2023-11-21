@@ -35,6 +35,12 @@ class UsersService {
     });
     return user;
   };
+  static deleteById = async ({ userId, options = {} }) => {
+    const user = await Users.deleteOne({
+      _id: userId,
+    }).session(options?.session);
+    return user;
+  };
   static findById = async ({ _id }) => {
     const user = await Users.findOne({
       _id,

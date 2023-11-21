@@ -44,10 +44,13 @@ class KeysService {
     });
     return data;
   };
-  static deleteByUserId = async ({ userId }) => {
-    const data = await Keys.findOneAndRemove({
-      user: userId,
-    });
+  static deleteByUserId = async ({ userId, options = {} }) => {
+    const data = await Keys.findOneAndDelete(
+      {
+        user: userId,
+      },
+      options
+    );
     return data;
   };
   static deleteByUserIdAndRT = async ({ userId, refreshToken }) => {

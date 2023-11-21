@@ -2,6 +2,12 @@
 const CartItems = require("../models/CartItems");
 
 class CartItemsService {
+  static deleteByUserId = async ({ userId, options = {} }) => {
+    const data = await CartItems.deleteMany({
+      user_id: userId,
+    }).session(options?.session || null);
+    return data;
+  };
   static findOneById = async ({ userId, cartItemId }) => {
     const result = await CartItems.findOne({
       user_id: userId,

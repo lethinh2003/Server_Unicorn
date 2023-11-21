@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 const COLLECTION_NAME = "OrderItems";
 const orderItemsSchema = new mongoose.Schema(
   {
+    user_id: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Users",
+      require: true,
+    },
     order_id: {
       type: mongoose.Schema.ObjectId,
       ref: "Orders",

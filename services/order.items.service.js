@@ -2,6 +2,12 @@
 const OrderItems = require("../models/OrderItems");
 
 class OrderItemsService {
+  static deleteByUserId = async ({ userId, options = {} }) => {
+    const data = await OrderItems.deleteMany({
+      user_id: userId,
+    }).session(options?.session || null);
+    return data;
+  };
   static createOrderItem = async ({ userId, orderId, data, options = {} }) => {
     const { productId, size, quantities, totalAmount } = data;
     const newOrderItems = new OrderItems({

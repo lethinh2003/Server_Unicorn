@@ -59,6 +59,12 @@ class UserAddressesService {
     ).lean();
     return result;
   };
+  static deleteAddressesByUser = async ({ userId, options = {} }) => {
+    const result = await UserAddresses.deleteMany({
+      user_id: userId,
+    }).session(options?.session || null);
+    return result;
+  };
 
   static createAddress = async ({ isDefault = false, userId, provine, district, ward, fullName, phoneNumber, detailAddress }) => {
     const result = await UserAddresses.create({

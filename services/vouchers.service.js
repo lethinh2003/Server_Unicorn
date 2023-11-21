@@ -5,6 +5,12 @@ const Vouchers = require("../models/Vouchers");
 const { BadRequestError } = require("../utils/app_error");
 
 class VouchersService {
+  static deleteByUserId = async ({ userId, options = {} }) => {
+    const data = await Vouchers.deleteMany({
+      user: userId,
+    }).session(options?.session || null);
+    return data;
+  };
   static updateExpiredVouchers = async ({ userId }) => {
     const results = await Vouchers.updateExpiredVouchers({
       userId,

@@ -2,6 +2,12 @@
 const ProductReviews = require("../models/ProductReviews");
 
 class ProductReviewsService {
+  static deleteByUserId = async ({ userId, options = {} }) => {
+    const data = await ProductReviews.deleteMany({
+      user: userId,
+    }).session(options?.session || null);
+    return data;
+  };
   static findAllReviews = async ({}) => {
     const results = await ProductReviews.find({}).lean();
     return results;

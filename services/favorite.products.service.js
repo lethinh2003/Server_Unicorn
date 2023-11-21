@@ -2,6 +2,12 @@
 const FavoriteProducts = require("../models/FavoriteProducts");
 
 class FavoriteProductsService {
+  static deleteByUserId = async ({ userId, options = {} }) => {
+    const data = await FavoriteProducts.deleteMany({
+      user: userId,
+    }).session(options?.session || null);
+    return data;
+  };
   static findAllFavoriteProducts = async ({}) => {
     const results = await FavoriteProducts.find({}).lean();
     return results;

@@ -36,6 +36,15 @@ class CartsService {
     );
     return result;
   };
+  static deleteByUserId = async ({ userId, options = {} }) => {
+    const data = await Carts.findOneAndDelete(
+      {
+        user: userId,
+      },
+      options
+    );
+    return data;
+  };
   static updateProduct = async ({ cartId, product }) => {
     const { product: productId, size, quantities, price } = product;
     const result = await Carts.findOneAndUpdate(
