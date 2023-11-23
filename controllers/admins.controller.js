@@ -21,9 +21,21 @@ const ProductReviewsService = require("../services/product.reviews.service");
 const VouchersService = require("../services/vouchers.service");
 const FavoriteProductsService = require("../services/favorite.products.service");
 const mongoose = require("mongoose");
+const { ADMIN_MESSAGES } = require("../configs/config.admin.messages");
 
 const LIMIT_ITEMS = 10;
 class AdminsController {
+  getDetailUser = catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    const result = await AdminsService.findDetailUserById({ userId });
+
+    return new OkResponse({
+      data: result,
+      metadata: {
+        userId,
+      },
+    }).send(res);
+  });
   getUsers = catchAsync(async (req, res, next) => {
     const { itemsOfPage, page } = req.query;
 
@@ -49,6 +61,57 @@ class AdminsController {
       },
     }).send(res);
   });
+
+  createUser = catchAsync(async (req, res, next) => {
+    const { email, password, birthday, gender, name, phone_number, status, role } = req.body;
+    if (!email || !password || !name || !gender) {
+      return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
+    }
+    // Check email is exist
+    const findUser = await UsersService.findByEmail({ email });
+    if (findUser) {
+      return next(new BadRequestError(USER_MESSAGES.EMAIL_EXIST_DB));
+    }
+    const result = await AdminsService.createUser({ email, password, birthday, gender, name, phone_number, status, role });
+
+    return new CreatedResponse({
+      message: ADMIN_MESSAGES.CREATE_USER_SUCCESS,
+      data: unSelectFields({ fields: ["password"], object: result }),
+    }).send(res);
+  });
+  updateUser = catchAsync(async (req, res, next) => {
+    const { userId, email, password, birthday, gender, name, phone_number, status, role } = req.body;
+    if (!userId || !email || !name || !gender) {
+      return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
+    }
+    let passwordUpdate = "";
+    // Check email is exist
+    const findUser = await UsersService.findByEmail({ email });
+    if (!findUser) {
+      return next(new BadRequestError(USER_MESSAGES.USER_NOT_EXIST_DB));
+    }
+    if (!password) {
+      passwordUpdate = findUser.password;
+    } else {
+      passwordUpdate = await hashPassword(password);
+    }
+    const result = await AdminsService.updateUser({
+      userId,
+      email,
+      password: passwordUpdate,
+      birthday: birthday ?? findUser.birthday,
+      gender,
+      name: name ?? findUser.name,
+      phone_number: phone_number ?? findUser.phone_number,
+      status: !!status,
+      role: role ?? findUser.role,
+    });
+
+    return new OkResponse({
+      message: ADMIN_MESSAGES.UPDATE_USER_SUCCESS,
+    }).send(res);
+  });
+
   deleteUser = catchAsync(async (req, res, next) => {
     const session = await mongoose.startSession();
     try {
@@ -95,7 +158,7 @@ class AdminsController {
       }, options);
 
       return new OkResponse({
-        message: USER_MESSAGES.DELETE_USER_SUCCESS,
+        message: ADMIN_MESSAGES.DELETE_USER_SUCCESS,
         metadata: {
           userId,
         },

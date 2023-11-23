@@ -10,7 +10,6 @@ const USER_MESSAGES = {
   ADDRESS_INVALID: "Địa chỉ không tồn tại",
   DEFAULT_ADDRESS_DELETE_INVALID: "Địa chỉ đang là mặc định, không thể xóa",
 
-  DELETE_USER_SUCCESS: "Xóa người dùng thành công",
   USER_NOT_EXIST_DB: "Nguời dùng không tồn tại",
   UPDATE_INFORMATION_SUCCESS: "Cập nhật thông tin thành công",
   UPDATE_PASSWORD_SUCCESS: "Cập nhật mật khẩu thành công",
