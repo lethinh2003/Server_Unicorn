@@ -1,10 +1,15 @@
 "use strict";
 
+const Orders = require("../models/Orders");
 const Users = require("../models/Users");
 
 class AdminsService {
   static findUsers = async ({ limitItems, skipItems }) => {
     const users = await Users.find({}).skip(skipItems).limit(limitItems).lean();
+    return users;
+  };
+  static findOrders = async ({ limitItems, skipItems }) => {
+    const users = await Orders.find({}).skip(skipItems).limit(limitItems).lean().populate("user");
     return users;
   };
   static findDetailUserById = async ({ userId }) => {
@@ -44,6 +49,10 @@ class AdminsService {
   };
   static countAllUsers = async () => {
     const count = await Users.countDocuments({});
+    return count;
+  };
+  static countAllOrders = async () => {
+    const count = await Orders.countDocuments({});
     return count;
   };
 }

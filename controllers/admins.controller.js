@@ -22,6 +22,8 @@ const VouchersService = require("../services/vouchers.service");
 const FavoriteProductsService = require("../services/favorite.products.service");
 const mongoose = require("mongoose");
 const { ADMIN_MESSAGES } = require("../configs/config.admin.messages");
+const { CART_MESSAGES } = require("../configs/config.cart.messages");
+const { ORDER_MESSAGES } = require("../configs/config.order.messages");
 
 const LIMIT_ITEMS = 10;
 class AdminsController {
@@ -169,6 +171,66 @@ class AdminsController {
     } finally {
       session.endSession();
     }
+  });
+  deleteOrder = catchAsync(async (req, res, next) => {
+    const session = await mongoose.startSession();
+    try {
+      const { orderId } = req.body;
+      const options = { session };
+
+      if (!orderId) {
+        throw new UnauthorizedError(USER_MESSAGES.INPUT_MISSING);
+      }
+      const checkOrderExist = await OrdersService.findById({ _id: orderId });
+      if (!checkOrderExist) {
+        throw new UnauthorizedError(ORDER_MESSAGES.ORDER_IS_NOT_EXISTS);
+      }
+      await session.withTransaction(async () => {
+        // Delete Order Items
+        const deleteOrderItems = await OrderItemsService.deleteByOrderId({ orderId, options });
+
+        // Delete Order
+        const deleteOrder = await OrdersService.deleteById({ orderId, options });
+      }, options);
+
+      return new OkResponse({
+        message: ADMIN_MESSAGES.DELETE_ORDER_SUCCESS,
+        metadata: {
+          orderId,
+        },
+      }).send(res);
+    } catch (err) {
+      console.log(err);
+      next(err);
+    } finally {
+      session.endSession();
+    }
+  });
+
+  getOrders = catchAsync(async (req, res, next) => {
+    const { itemsOfPage, page } = req.query;
+
+    const limitItems = itemsOfPage * 1 || LIMIT_ITEMS;
+    const currentPage = page * 1 || 1;
+    const skipItems = (currentPage - 1) * limitItems;
+    const countAllOrders = await AdminsService.countAllOrders();
+
+    const results = await AdminsService.findOrders({ limitItems, skipItems });
+
+    const filterResults = results.map((item) => {
+      const newItem = unSelectFields({ fields: ["password", "reset_password_otp", "time_reset_password_otp"], object: item });
+      return newItem;
+    });
+    return new OkResponse({
+      data: filterResults,
+      metadata: {
+        page: currentPage,
+        limit: limitItems,
+        results: results.length,
+        allResults: countAllOrders,
+        pageCount: Math.ceil(countAllOrders / limitItems),
+      },
+    }).send(res);
   });
 }
 
