@@ -13,14 +13,30 @@ const { OkResponse, CreatedResponse } = require("../utils/success_response");
 const { PRODUCT_PAGINATION } = require("../configs/config.product.pagination");
 const { VOUCHER_MESSAGES } = require("../configs/config.voucher.messages");
 const UserAddressesService = require("../services/user.addessses.service");
-const { CART_PAYMENT_METHOD, SHIPPING_COST } = require("../configs/config.orders");
+const { CART_PAYMENT_METHOD, SHIPPING_COST, ORDER_STATUS, ONLINE_PAYMENT_TYPE } = require("../configs/config.orders");
 const { ORDER_MESSAGES } = require("../configs/config.order.messages");
 const { VOUCHER_TYPES } = require("../configs/config.voucher.types");
 const OrdersService = require("../services/orders.service");
 const OrderItemsService = require("../services/order.items.service");
 const mongoose = require("mongoose");
+const CryptoJS = require("crypto-js");
+const QueryString = require("qs");
+var cron = require("node-cron");
+const cronTasksService = require("../services/cron.tasks.service");
+const HistoryOnlinePaymentsFactory = require("../services/history.online.payment.service");
 
 class OrdersController {
+  getDetailedOrder = catchAsync(async (req, res, next) => {
+    const { _id } = req.user;
+    const { orderId } = req.params;
+    const result = await OrdersService.findByIdAndUserId({ _id: orderId, userId: _id });
+    if (!result) {
+      return next(new BadRequestError(ORDER_MESSAGES.ORDER_IS_NOT_EXISTS));
+    }
+    return new OkResponse({
+      data: result,
+    }).send(res);
+  });
   createOrder = catchAsync(async (req, res, next) => {
     const session = await mongoose.startSession();
     try {
@@ -127,6 +143,7 @@ class OrdersController {
       }
       // Create new order
       const newOrder = await OrdersService.createOrder({
+        paymentMethod,
         userId,
         voucherId: voucher ? voucher._id : undefined,
         addressId: checkAddressIsExist._id,
@@ -184,8 +201,56 @@ class OrdersController {
       });
       await Promise.all(listUpdateQuantityProducts);
 
+      // If banking method -> create 1 cron job check 10 minutes after new order was created
+      if (paymentMethod === CART_PAYMENT_METHOD.BANKING) {
+        cronTasksService.startOneTaskAfterTime({
+          time: 1 * 60 * 1000,
+          callback: async () => {
+            const session = await mongoose.startSession();
+            const options = { session };
+
+            // if after 10 minutes, the order doesn't payment -> cancel order
+            await session.withTransaction(async () => {
+              const findOrder = await OrdersService.findById({ _id: newOrder._id, options });
+              if (findOrder) {
+                if (findOrder.order_status === ORDER_STATUS.PAYMENT_PENDING) {
+                  // Update canceled status order
+                  await OrdersService.updateOneById({
+                    _id: newOrder._id,
+                    update: {
+                      order_status: ORDER_STATUS.CANCELLED,
+                    },
+                    options,
+                  });
+
+                  // Restore quantity products
+
+                  const listOrderItems = await OrderItemsService.findByOrderId({
+                    orderId: newOrder._id,
+                    options,
+                  });
+                  const listProducts = listOrderItems.map((orderItem) => orderItem.data);
+
+                  const listUpdateQuantityProducts = listProducts.map((item) => {
+                    return ProductsService.increseQuantityProduct({
+                      productId: item.product,
+                      productSize: item.size,
+                      productQuantities: item.quantities,
+                      options,
+                    });
+                  });
+                  await Promise.all(listUpdateQuantityProducts);
+                }
+              }
+            }, options);
+            session.endSession();
+          },
+        });
+      }
+
       await session.commitTransaction();
       return new CreatedResponse({
+        data: newOrder,
         message: ORDER_MESSAGES.CREATE_ORDER_SUCCESS,
       }).send(res);
     } catch (err) {
@@ -194,6 +259,86 @@ class OrdersController {
     } finally {
       session.endSession();
     }
+  });
+  checkVNPay = catchAsync(async (req, res, next) => {
+    const { vnp_Params } = req.body;
+    let {
+      vnp_TxnRef,
+      vnp_Amount,
+      vnp_ResponseCode,
+      vnp_TransactionStatus,
+      vnp_SecureHash,
+      vnp_TmnCode,
+      vnp_BankCode,
+      vnp_BankTranNo,
+      vnp_CardType,
+      vnp_PayDate,
+      vnp_OrderInfo,
+      vnp_TransactionNo,
+    } = vnp_Params;
+
+    if (!vnp_SecureHash || !vnp_TxnRef || !vnp_Amount || !vnp_ResponseCode || !vnp_TmnCode) {
+      return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
+    }
+    let secureHash = vnp_SecureHash;
+    let tmnCode = process.env.VNPAY_TMNCODE || "";
+    let secretKey = process.env.VNPAY_HASHSECRET || "";
+    vnp_Params["vnp_SecureHash"] = undefined;
+    let signData = QueryString.stringify(vnp_Params, { encode: false });
+    let signed = CryptoJS.HmacSHA512(signData, secretKey).toString(CryptoJS.enc.Hex);
+    console.log(secureHash, signed);
+    if (secureHash !== signed) {
+      return next(new BadRequestError(ORDER_MESSAGES.ONLINE_PAYMENT_ERROR));
+    }
+    const checkOrderExist = await OrdersService.findById({ _id: vnp_TxnRef });
+    if (!checkOrderExist) {
+      return next(new BadRequestError(ORDER_MESSAGES.ORDER_IS_NOT_EXISTS));
+    }
+    vnp_Amount = (vnp_Amount * 1) / 100;
+    if (checkOrderExist.total !== vnp_Amount) {
+      return next(new BadRequestError(ORDER_MESSAGES.ONLINE_PAYMENT_AMOUNT_INVALID));
+    }
+    if (checkOrderExist.order_status !== ORDER_STATUS.PAYMENT_PENDING) {
+      return next(new BadRequestError(ORDER_MESSAGES.ONLINE_PAYMENT_ALREADY));
+    }
+
+    // Insert History
+    await HistoryOnlinePaymentsFactory.createNewHistory({
+      type: ONLINE_PAYMENT_TYPE.VNPAY,
+      payload: {
+        user_id: checkOrderExist.user,
+        order_id: checkOrderExist._id,
+        online_payment_type: ONLINE_PAYMENT_TYPE.VNPAY,
+        data: {
+          vnp_TxnRef,
+          vnp_Amount,
+          vnp_ResponseCode,
+          vnp_TransactionStatus,
+          vnp_TmnCode,
+          vnp_BankCode,
+          vnp_BankTranNo,
+          vnp_CardType,
+          vnp_PayDate,
+          vnp_OrderInfo,
+          vnp_TransactionNo,
+        },
+      },
+    });
+
+    // Giao dịch thất bại
+    if (vnp_ResponseCode !== "00") {
+      return next(new BadRequestError(ORDER_MESSAGES.ONLINE_PAYMENT_ERROR));
+    }
+    await OrdersService.updateOneById({
+      _id: checkOrderExist._id,
+      update: {
+        order_status: ORDER_STATUS.PENDING,
+      },
+    });
+
+    return new OkResponse({
+      message: ORDER_MESSAGES.ONLINE_PAYMENT_SUCCESS,
+    }).send(res);
   });
 }
 

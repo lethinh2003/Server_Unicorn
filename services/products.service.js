@@ -57,6 +57,17 @@ class ProductsService {
     );
     return result;
   };
+  static increseQuantityProduct = async ({ productId, productSize, productQuantities, options = {} }) => {
+    const result = await Products.findOneAndUpdate(
+      {
+        _id: productId,
+        "product_sizes.size_type": productSize,
+      },
+      { $inc: { "product_sizes.$.size_quantities": productQuantities * 1 } },
+      options
+    );
+    return result;
+  };
   static findAllParentProducts = async ({ skipItems, limitItems }) => {
     let query = {
       status: true,

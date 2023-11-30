@@ -8,6 +8,14 @@ class OrderItemsService {
     }).session(options?.session || null);
     return data;
   };
+  static findByOrderId = async ({ orderId, options = {} }) => {
+    const data = await OrderItems.find({
+      order_id: orderId,
+    })
+      .lean()
+      .session(options?.session || null);
+    return data;
+  };
   static deleteByOrderId = async ({ orderId, options = {} }) => {
     const data = await OrderItems.deleteMany({
       order_id: orderId,

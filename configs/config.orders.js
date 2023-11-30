@@ -2,6 +2,9 @@ const CART_PAYMENT_METHOD = {
   CASH: "cash",
   BANKING: "banking",
 };
+const ONLINE_PAYMENT_TYPE = {
+  VNPAY: "vnpay",
+};
 const SHIPPING_COST = 30000;
 
 const ORDER_STATUS = {
@@ -12,4 +15,4 @@ const ORDER_STATUS = {
   CANCELLED: "cancelled",
 };
 
-module.exports = { CART_PAYMENT_METHOD, SHIPPING_COST, ORDER_STATUS };
+module.exports = { CART_PAYMENT_METHOD, SHIPPING_COST, ORDER_STATUS, ONLINE_PAYMENT_TYPE };
