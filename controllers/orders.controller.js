@@ -203,47 +203,52 @@ class OrdersController {
 
       // If banking method -> create 1 cron job check 10 minutes after new order was created
       if (paymentMethod === CART_PAYMENT_METHOD.BANKING) {
+        const MAXIMUM_MINUTES_BANKING_PENDING = 10;
         cronTasksService.startOneTaskAfterTime({
-          time: 1 * 60 * 1000,
+          time: MAXIMUM_MINUTES_BANKING_PENDING * 60 * 1000,
           callback: async () => {
             const session = await mongoose.startSession();
             const options = { session };
-
-            // if after 10 minutes, the order doesn't payment -> cancel order
-            await session.withTransaction(async () => {
-              const findOrder = await OrdersService.findById({ _id: newOrder._id, options });
-              if (findOrder) {
-                if (findOrder.order_status === ORDER_STATUS.PAYMENT_PENDING) {
-                  // Update canceled status order
-                  await OrdersService.updateOneById({
-                    _id: newOrder._id,
-                    update: {
-                      order_status: ORDER_STATUS.CANCELLED,
-                    },
-                    options,
-                  });
-
-                  // Restore quantity products
-
-                  const listOrderItems = await OrderItemsService.findByOrderId({
-                    orderId: newOrder._id,
-                    options,
-                  });
-                  const listProducts = listOrderItems.map((orderItem) => orderItem.data);
-
-                  const listUpdateQuantityProducts = listProducts.map((item) => {
-                    return ProductsService.increseQuantityProduct({
-                      productId: item.product,
-                      productSize: item.size,
-                      productQuantities: item.quantities,
+            try {
+              // if after 10 minutes, the order doesn't payment -> cancel order
+              await session.withTransaction(async () => {
+                const findOrder = await OrdersService.findById({ _id: newOrder._id, options });
+                if (findOrder) {
+                  if (findOrder.order_status === ORDER_STATUS.PAYMENT_PENDING) {
+                    // Update canceled status order
+                    await OrdersService.updateOneById({
+                      _id: newOrder._id,
+                      update: {
+                        order_status: ORDER_STATUS.CANCELLED,
+                      },
                       options,
                     });
-                  });
-                  await Promise.all(listUpdateQuantityProducts);
+
+                    // Restore quantity products
+
+                    const listOrderItems = await OrderItemsService.findByOrderId({
+                      orderId: newOrder._id,
+                      options,
+                    });
+                    const listProducts = listOrderItems.map((orderItem) => orderItem.data);
+
+                    const listUpdateQuantityProducts = listProducts.map((item) => {
+                      return ProductsService.increseQuantityProduct({
+                        productId: item.product,
+                        productSize: item.size,
+                        productQuantities: item.quantities,
+                        options,
+                      });
+                    });
+                    await Promise.all(listUpdateQuantityProducts);
+                  }
                 }
-              }
-            }, options);
-            session.endSession();
+              }, options);
+            } catch (err) {
+              throw err;
+            } finally {
+              session.endSession();
+            }
           },
         });
       }
