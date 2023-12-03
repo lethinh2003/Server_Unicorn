@@ -24,6 +24,9 @@ const QueryString = require("qs");
 var cron = require("node-cron");
 const cronTasksService = require("../services/cron.tasks.service");
 const HistoryOnlinePaymentsFactory = require("../services/history.online.payment.service");
+const { selectFields } = require("../utils/selectFields");
+
+const ORDER_QUERY_TYPE = { ...ORDER_STATUS, ALL: "all" };
 
 class OrdersController {
   getDetailedOrder = catchAsync(async (req, res, next) => {
@@ -37,6 +40,41 @@ class OrdersController {
       data: result,
     }).send(res);
   });
+
+  getListOrders = catchAsync(async (req, res, next) => {
+    const { itemsOfPage, page, type = ORDER_QUERY_TYPE.ALL } = req.query;
+    const { _id: userId } = req.user;
+    const limitItems = itemsOfPage * 1 || PRODUCT_PAGINATION.LIMIT_ITEMS;
+    const currentPage = page * 1 || 1;
+    const skipItems = (currentPage - 1) * limitItems;
+    const results = await OrdersService.findOrders({
+      userId,
+      limitItems,
+      skipItems,
+      type,
+    });
+    for (const item of results) {
+      const getOrderItems = await OrderItemsService.findByOrderId({
+        orderId: item._id,
+        populate: {
+          path: "data.product",
+        },
+      });
+      item["order_items"] = selectFields({ fields: ["data$.product$.product_images"], object: getOrderItems });
+    }
+
+    return new OkResponse({
+      data: results,
+      metadata: {
+        page: currentPage,
+        limit: limitItems,
+        type,
+        userId,
+        results: results.length,
+      },
+    }).send(res);
+  });
+
   createOrder = catchAsync(async (req, res, next) => {
     const session = await mongoose.startSession();
     try {

@@ -1,8 +1,30 @@
 "use strict";
 const { ORDER_STATUS, CART_PAYMENT_METHOD } = require("../configs/config.orders");
 const Orders = require("../models/Orders");
+const ORDER_QUERY_TYPE = { ...ORDER_STATUS, ALL: "all" };
 
 class OrdersService {
+  static findOrders = async ({ userId, limitItems, skipItems, type }) => {
+    let results = [];
+    if (type === ORDER_QUERY_TYPE.ALL) {
+      results = await Orders.find({
+        user: userId,
+      })
+        .skip(skipItems)
+        .limit(limitItems)
+        .lean();
+    } else {
+      results = await Orders.find({
+        user: userId,
+        order_status: type,
+      })
+        .skip(skipItems)
+        .limit(limitItems)
+        .lean();
+    }
+
+    return results;
+  };
   static updateOneById = async ({ _id, update, options = {} }) => {
     const data = await Orders.findOneAndUpdate(
       {

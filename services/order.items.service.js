@@ -8,10 +8,11 @@ class OrderItemsService {
     }).session(options?.session || null);
     return data;
   };
-  static findByOrderId = async ({ orderId, options = {} }) => {
+  static findByOrderId = async ({ orderId, options = {}, populate = null }) => {
     const data = await OrderItems.find({
       order_id: orderId,
     })
+      .populate(populate)
       .lean()
       .session(options?.session || null);
     return data;
