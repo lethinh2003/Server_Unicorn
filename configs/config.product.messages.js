@@ -24,5 +24,7 @@ const PRODUCT_MESSAGES = {
   FAVORITE_IS_NOT_EXISTS: "Sản phẩm chưa được thêm vào danh sách yêu thích",
   PRODUCT_IS_NOT_EXISTS: "Sản phẩm không tồn tại",
   PRODUCT_IS_NOT_AVAILABLE: "Sản phẩm không có sẵn hàng",
+
+  SALE_EVENT_CREATE_FAILURE: "Tạo sale event thất bại",
 };
 module.exports = { PRODUCT_MESSAGES };

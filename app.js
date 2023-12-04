@@ -16,6 +16,7 @@ const {
 const errorController = require("./controllers/error_controller");
 const { UPLOAD_PATH } = require("./configs/config.upload.path");
 const userRouters = require("./routers/users.routers");
+const productSalesRouters = require("./routers/product.sales.routers");
 const productSizesRouters = require("./routers/product.sizes.routers");
 const productColorsRouters = require("./routers/product.colors.routers");
 const productCategoriesRouters = require("./routers/product.categories.routers");
@@ -122,6 +123,7 @@ app.use("/api/v1/carts", cartsRouters);
 app.use("/api/v1/vouchers", vouchersRouters);
 app.use("/api/v1/users", userRouters);
 app.use("/api/v1/products", productsRouters);
+app.use("/api/v1/product-sales", productSalesRouters);
 app.use("/api/v1/product-sizes", productSizesRouters);
 app.use("/api/v1/product-colors", productColorsRouters);
 app.use("/api/v1/product-categories", productCategoriesRouters);

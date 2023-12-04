@@ -45,7 +45,7 @@ class CartItemsService {
       .lean()
       .populate({
         path: "data.product",
-        populate: "product_color",
+        populate: "product_color product_sale_event",
       })
       .populate("data.size");
     return results;

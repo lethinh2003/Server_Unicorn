@@ -57,10 +57,13 @@ class OrdersController {
       const getOrderItems = await OrderItemsService.findByOrderId({
         orderId: item._id,
         populate: {
-          path: "data.product",
+          path: "data.product data.size",
+          populate: {
+            path: "product_color",
+          },
         },
       });
-      item["order_items"] = selectFields({ fields: ["data$.product$.product_images"], object: getOrderItems });
+      item["order_items"] = getOrderItems;
     }
 
     return new OkResponse({
@@ -159,7 +162,14 @@ class OrdersController {
       const subTotal = (() => {
         let totalPrice = 0;
         listCartItems?.forEach((item) => {
-          totalPrice += item.data.product.product_original_price * item.data.quantities;
+          if (item.data.product.product_sale_event) {
+            const discountPercent = item.data.product.product_sale_event.sale_discount_percentage;
+            totalPrice +=
+              Math.round(item.data.product.product_original_price - (discountPercent * item.data.product.product_original_price) / 100) *
+              item.data.quantities;
+          } else {
+            totalPrice += item.data.product.product_original_price * item.data.quantities;
+          }
         });
         return totalPrice;
       })();

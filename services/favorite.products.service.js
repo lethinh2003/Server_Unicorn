@@ -26,7 +26,7 @@ class FavoriteProductsService {
       .populate({
         path: "product_id",
         populate: {
-          path: "product_color",
+          path: "product_color product_sale_event",
         },
       })
       .skip(skipItems)

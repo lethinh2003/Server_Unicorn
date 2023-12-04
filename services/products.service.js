@@ -20,7 +20,7 @@ class ProductsService {
       _id: productId,
       status: true,
     })
-      .populate("product_color product_sizes.size_type product_categories")
+      .populate("product_color product_sizes.size_type product_categories product_sale_event")
       .lean();
     return result;
   };
@@ -75,7 +75,7 @@ class ProductsService {
     };
 
     const results = await Products.find(query)
-      .populate("product_color product_sizes.size_type product_categories")
+      .populate("product_color product_sizes.size_type product_categories product_sale_event")
       .limit(limitItems)
       .skip(skipItems)
       .sort("-createdAt")
@@ -93,7 +93,7 @@ class ProductsService {
 
     const random = Math.floor(Math.random() * countDocuments);
     const results = await Products.find(query)
-      .populate("product_color product_sizes.size_type product_categories")
+      .populate("product_color product_sizes.size_type product_categories product_sale_event")
       .limit(limitItems)
       .skip(random)
       .lean();
@@ -117,7 +117,7 @@ class ProductsService {
     }
 
     const results = await Products.find(query)
-      .populate("product_color product_sizes.size_type product_categories")
+      .populate("product_color product_sizes.size_type product_categories product_sale_event")
       .limit(limitItems)
       .skip(skipItems)
       .lean();
@@ -128,7 +128,7 @@ class ProductsService {
       parent_product_id: parentProductId,
       status: true,
     })
-      .populate("product_color product_sizes.size_type product_categories")
+      .populate("product_color product_sizes.size_type product_categories product_sale_event")
       .lean();
     return results;
   };
@@ -138,7 +138,7 @@ class ProductsService {
       parent_product_id: parentProductId,
       status: true,
     })
-      .populate("product_color product_sizes.size_type product_categories")
+      .populate("product_color product_sizes.size_type product_categories product_sale_event")
       .lean();
     return results;
   };
