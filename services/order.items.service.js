@@ -24,12 +24,12 @@ class OrderItemsService {
     return data;
   };
   static createOrderItem = async ({ userId, orderId, data, options = {} }) => {
-    const { productId, size, quantities, totalAmount } = data;
+    const { product, size, quantities, totalAmount } = data;
     const newOrderItems = new OrderItems({
       order_id: orderId,
       user_id: userId,
       data: {
-        product: productId,
+        product,
         size,
         quantities,
         totalAmount,

@@ -14,13 +14,11 @@ const orderItemsSchema = new mongoose.Schema(
     },
     data: {
       product: {
-        type: mongoose.Schema.ObjectId,
-        ref: "Products",
+        type: Object,
         require: true,
       },
       size: {
-        type: mongoose.Schema.ObjectId,
-        ref: "ProductSizes",
+        type: Object,
         require: true,
       },
       quantities: {

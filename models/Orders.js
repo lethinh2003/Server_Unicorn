@@ -8,12 +8,10 @@ const ordersSchema = new mongoose.Schema(
       ref: "Users",
     },
     address: {
-      type: mongoose.Schema.ObjectId,
-      ref: "UserAddresses",
+      type: Object,
     },
     voucher: {
-      type: mongoose.Schema.ObjectId,
-      ref: "Vouchers",
+      type: Object,
     },
     note: {
       type: String,

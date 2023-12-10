@@ -25,6 +25,7 @@ var cron = require("node-cron");
 const cronTasksService = require("../services/cron.tasks.service");
 const HistoryOnlinePaymentsFactory = require("../services/history.online.payment.service");
 const { selectFields } = require("../utils/selectFields");
+const OrderItems = require("../models/OrderItems");
 
 const ORDER_QUERY_TYPE = { ...ORDER_STATUS, ALL: "all" };
 
@@ -56,12 +57,6 @@ class OrdersController {
     for (const item of results) {
       const getOrderItems = await OrderItemsService.findByOrderId({
         orderId: item._id,
-        populate: {
-          path: "data.product data.size",
-          populate: {
-            path: "product_color",
-          },
-        },
       });
       item["order_items"] = getOrderItems;
     }
@@ -190,11 +185,15 @@ class OrdersController {
         }
       }
       // Create new order
+      const { provine, district, ward, full_name, phone_number, detail_address } = checkAddressIsExist;
+      const { discount, min_order_quantity, min_order_amount, type, code, description, expired_date, createdAt } =
+        checkVoucherIsExists || {};
+
       const newOrder = await OrdersService.createOrder({
         paymentMethod,
         userId,
-        voucherId: voucher ? voucher._id : undefined,
-        addressId: checkAddressIsExist._id,
+        voucher: voucher ? { discount, min_order_quantity, min_order_amount, type, code, description, expired_date, createdAt } : undefined,
+        address: { provine, district, ward, full_name, phone_number, detail_address },
         note,
         subTotal,
         shippingCost,
@@ -206,13 +205,16 @@ class OrdersController {
       // Create order items
 
       const listCreateOrderItems = listCartItems.map((cartItem) => {
+        const { _id, product_images, product_gender, product_original_price, product_name, product_color, product_sale_event } =
+          cartItem.data.product;
+        const { _id: sizeId, product_size_name } = cartItem.data.size;
         const totalAmount = Math.round(cartItem.data.product.product_original_price * cartItem.data.quantities);
         return OrderItemsService.createOrderItem({
           userId,
           orderId: newOrder._id,
           data: {
-            productId: cartItem.data.product._id,
-            size: cartItem.data.size._id,
+            product: { _id, product_images, product_gender, product_original_price, product_name, product_color, product_sale_event },
+            size: { _id: sizeId, product_size_name },
             quantities: cartItem.data.quantities,
             totalAmount,
           },

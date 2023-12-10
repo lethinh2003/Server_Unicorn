@@ -65,8 +65,8 @@ class OrdersService {
   static createOrder = async ({
     paymentMethod,
     userId,
-    voucherId,
-    addressId,
+    voucher,
+    address,
     note,
     subTotal,
     shippingCost,
@@ -77,8 +77,8 @@ class OrdersService {
     const newOrder = new Orders({
       order_method: paymentMethod,
       user: userId,
-      address: addressId,
-      voucher: voucherId,
+      address,
+      voucher: voucher,
       note,
       subTotal,
       shippingCost,
