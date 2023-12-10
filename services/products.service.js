@@ -82,6 +82,21 @@ class ProductsService {
       .lean();
     return results;
   };
+  static findAllParentSaleProducts = async ({ skipItems, limitItems }) => {
+    let query = {
+      status: true,
+      $or: [{ parent_product_id: null }, { parent_product_id: undefined }],
+      product_sale_event: { $ne: null },
+    };
+
+    const results = await Products.find(query)
+      .populate("product_color product_sizes.size_type product_categories product_sale_event")
+      .limit(limitItems)
+      .skip(skipItems)
+      .sort("-createdAt")
+      .lean();
+    return results;
+  };
   static findAllParentSuggestProducts = async ({ category, gender, limitItems }) => {
     let query = {
       status: true,

@@ -95,6 +95,38 @@ class ProductsController {
       },
     }).send(res);
   });
+  getSaleProducts = catchAsync(async (req, res, next) => {
+    const { page, itemsOfPage } = req.query;
+    const limitItems = itemsOfPage * 1 || PRODUCT_PAGINATION.LIMIT_ITEMS;
+    const currentPage = page * 1 || 1;
+    const skipItems = (currentPage - 1) * limitItems;
+    const listParentProducts = await ProductsService.findAllParentSaleProducts({
+      skipItems,
+      limitItems,
+    });
+    let results = [];
+    const productPromises = listParentProducts.map(async (product) => {
+      const listChildProducts = await ProductsService.findAllChildProductsByParent({
+        parentProductId: product._id,
+      });
+      return {
+        ...unSelectFields({ fields: ["product_categories", "product_sizes", "product_description"], object: product }),
+        child_products: listChildProducts.map((child) =>
+          unSelectFields({ fields: ["product_categories", "product_sizes", "product_description"], object: child })
+        ),
+      };
+    });
+    results = await Promise.all(productPromises);
+
+    return new OkResponse({
+      data: results,
+      metadata: {
+        page: currentPage,
+        limit: limitItems,
+        results: results.length,
+      },
+    }).send(res);
+  });
   getSuggestProducts = catchAsync(async (req, res, next) => {
     const { productId, itemsOfPage } = req.query;
     const limitItems = itemsOfPage * 1 || PRODUCT_PAGINATION.LIMIT_ITEMS;

@@ -205,6 +205,7 @@ router.route("/").get(productsController.getAllParentProducts);
 router.route("/").post(authController.protect, authController.reStrictTo("admin"), productsController.createProduct);
 
 router.route("/latest-collection").get(productsController.getLatestProducts);
+router.route("/sale-collection").get(productsController.getSaleProducts);
 
 /**
  * @swagger
