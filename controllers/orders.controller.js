@@ -37,8 +37,11 @@ class OrdersController {
     if (!result) {
       return next(new BadRequestError(ORDER_MESSAGES.ORDER_IS_NOT_EXISTS));
     }
+    // get order items
+    const listOrderItems = await OrderItemsService.findByOrderId({ orderId });
+
     return new OkResponse({
-      data: result,
+      data: { ...result, listOrderItems: listOrderItems },
     }).send(res);
   });
 
@@ -70,6 +73,65 @@ class OrdersController {
         userId,
         results: results.length,
       },
+    }).send(res);
+  });
+
+  cancelOrder = catchAsync(async (req, res, next) => {
+    const { orderId } = req.body;
+    const { _id: userId } = req.user;
+    if (!orderId) {
+      return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
+    }
+    const session = await mongoose.startSession();
+    const options = { session };
+    try {
+      await session.withTransaction(async () => {
+        const findOrder = await OrdersService.findByIdAndUser({ _id: orderId, userId: userId, options });
+        if (findOrder) {
+          if (
+            findOrder.order_status === ORDER_STATUS.PAYMENT_PENDING ||
+            findOrder.order_status === ORDER_STATUS.PENDING ||
+            findOrder.order_status === ORDER_STATUS.DELIVERING
+          ) {
+            // Update canceled status order
+            await OrdersService.updateOneById({
+              _id: orderId,
+              update: {
+                order_status: ORDER_STATUS.CANCELLED,
+              },
+              options,
+            });
+
+            // Restore quantity products
+            const listOrderItems = await OrderItemsService.findByOrderId({
+              orderId: orderId,
+              options,
+            });
+            const listProducts = listOrderItems.map((orderItem) => orderItem.data);
+
+            const listUpdateQuantityProducts = listProducts.map((item) => {
+              return ProductsService.increseQuantityProduct({
+                productId: item.product,
+                productSize: item.size,
+                productQuantities: item.quantities,
+                options,
+              });
+            });
+            await Promise.all(listUpdateQuantityProducts);
+          } else {
+            throw new BadRequestError(ORDER_MESSAGES.CANNOT_CANCEL);
+          }
+        } else {
+          throw new BadRequestError(ORDER_MESSAGES.ORDER_IS_NOT_EXISTS);
+        }
+      }, options);
+    } catch (err) {
+      throw err;
+    } finally {
+      session.endSession();
+    }
+    return new OkResponse({
+      message: ORDER_MESSAGES.CANCEL_ORDER_SUCCESS,
     }).send(res);
   });
 

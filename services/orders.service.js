@@ -12,6 +12,7 @@ class OrdersService {
       })
         .skip(skipItems)
         .limit(limitItems)
+        .sort("-createdAt")
         .lean();
     } else {
       results = await Orders.find({
@@ -45,6 +46,15 @@ class OrdersService {
   static findById = async ({ _id, options = {} }) => {
     const data = await Orders.findOne({
       _id,
+    })
+      .lean()
+      .session(options?.session || null);
+    return data;
+  };
+  static findByIdAndUser = async ({ _id, userId, options = {} }) => {
+    const data = await Orders.findOne({
+      _id,
+      user: userId,
     })
       .lean()
       .session(options?.session || null);

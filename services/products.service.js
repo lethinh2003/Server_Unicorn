@@ -2,6 +2,15 @@
 const Products = require("../models/Products");
 const mongoose = require("mongoose");
 class ProductsService {
+  static searchProducts = async ({ query }) => {
+    const results = await Products.find({
+      status: true,
+      $or: [{ parent_product_id: null }, { parent_product_id: undefined }],
+      $text: { $search: query },
+    })
+    .lean();
+    return results;
+  };
   static findAllProducts = async ({}) => {
     const results = await Products.find({
       status: true,
