@@ -12,6 +12,7 @@ class OrderItemsService {
     const data = await OrderItems.find({
       order_id: orderId,
     })
+
       .populate(populate)
       .lean()
       .session(options?.session || null);

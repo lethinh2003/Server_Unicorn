@@ -7,6 +7,8 @@ const PRODUCT_MESSAGES = {
   INPUT_MISSING: "Vui lòng nhập đầy đủ thông tin",
   REVIEW_STAR_INVALID: "Số sao đánh giá phải từ 1 đến 5",
   REVIEW_COMMENT_INVALID: "Bình luận đánh giá phải từ 5 kí tự trở lên",
+  CREATE_REVIEW_SUCCESS: "Tạo đánh giá thành công",
+
   CATEGORY_NAME_MISSING: "Vui lòng nhập tên danh mục",
   CATEGORY_KEY_WORD_MISSING: "Vui lòng nhập key word danh mục",
   CATEGORY_GENDER_MISSING: "Vui lòng nhập giới tính của danh mục",

@@ -301,6 +301,7 @@ router.use("/reviews", productReviewsRouters);
  *                   type: object
  *                   example: {}
  */
+
 router.route("/:productId").get(productsController.getDetailProduct);
 
 module.exports = router;

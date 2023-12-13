@@ -106,7 +106,7 @@ class ProductReviewsService {
     }).lean();
     return result;
   };
-  static createReview = async ({ parentProductId = undefined, productId, reviewStart, reviewImages = [], reviewComment, userId }) => {
+  static createReview = async ({ parentProductId = undefined, productId, reviewStart, reviewImages = [], reviewComment, userId, productSize }) => {
     const results = await ProductReviews.create({
       user: userId,
       parent_product_id: parentProductId,
@@ -114,6 +114,7 @@ class ProductReviewsService {
       review_star: reviewStart,
       review_images: reviewImages,
       review_comment: reviewComment,
+      product_size: productSize
     });
     return results;
   };

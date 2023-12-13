@@ -21,6 +21,7 @@ class OrdersService {
       })
         .skip(skipItems)
         .limit(limitItems)
+        .sort("-createdAt")
         .lean();
     }
 

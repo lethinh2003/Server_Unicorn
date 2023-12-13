@@ -1,6 +1,7 @@
 const express = require("express");
 const productReviewsController = require("../controllers/product.reviews.controller");
 const authController = require("../controllers/auth.controller");
+const { uploadCloud: fileUploader } = require("../configs/cloudinary.config");
 
 const router = express.Router();
 /**
@@ -173,6 +174,8 @@ router.route("/").get(productReviewsController.getReviewsByProduct);
  *                       example: 0
  */
 router.route("/rating-overview").get(productReviewsController.getRatingOverviewByProduct);
+
+router.route("/upload-images").post(authController.protect, fileUploader.array("file"), productReviewsController.uploadImages);
 
 /**
  * @swagger

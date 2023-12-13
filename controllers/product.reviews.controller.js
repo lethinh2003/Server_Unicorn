@@ -92,11 +92,24 @@ class ProductReviewsController {
     }).send(res);
   });
   createReview = catchAsync(async (req, res, next) => {
-    const { parentProductId, productId, reviewStart, reviewImages, reviewComment } = req.body;
+    const { productId, reviewStart, reviewImages, reviewComment, productSize } = req.body;
     const { _id: userId } = req.user;
-    if (!productId || !reviewStart || !reviewComment) {
+    if (!productId || !reviewStart || !reviewComment || !productSize) {
       return next(new UnauthorizedError(PRODUCT_MESSAGES.INPUT_MISSING));
     }
+    if (reviewStart * 1 <= 0 || reviewStart * 1 > 5) {
+      return next(new UnauthorizedError(PRODUCT_MESSAGES.INPUT_MISSING));
+    }
+
+    // Check product is valid
+    const findProduct = await ProductsService.findById({
+      productId,
+    });
+
+    if (!findProduct) {
+      return next(new BadRequestError(PRODUCT_MESSAGES.PRODUCT_IS_NOT_EXISTS));
+    }
+
     // Check user reviewed yet?
     const findUserReview = await ProductReviewsService.findUserReviewByProduct({
       productId,
@@ -108,14 +121,26 @@ class ProductReviewsController {
     // Create new review
     const result = await ProductReviewsService.createReview({
       userId,
-      parentProductId,
+      parentProductId: findProduct?.parent_product_id,
       productId,
       reviewStart,
       reviewImages,
       reviewComment,
+      productSize
     });
     return new CreatedResponse({
       data: result,
+      message: PRODUCT_MESSAGES.CREATE_REVIEW_SUCCESS,
+    }).send(res);
+  });
+  uploadImages = catchAsync(async (req, res, next) => {
+    var imageUrlList = [];
+
+    for (var i = 0; i < req.files.length; i++) {
+      imageUrlList.push({ fileName: req.files[i].originalname, fileUrl: req.files[i].path, typeFile: req.files[i].mimetype });
+    }
+    return new OkResponse({
+      data: imageUrlList,
     }).send(res);
   });
 }

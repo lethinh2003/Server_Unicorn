@@ -16,7 +16,7 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     resource_type: "auto",
-    folder: "mua-he-xanh",
+    folder: "unicorn",
     public_id: (req, file) => {
       let extensionPath = "";
       if (file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
