@@ -30,6 +30,7 @@ class KeysService {
     const data = await Keys.findOne({
       refresh_tokens_used: refreshToken,
     }).lean();
+    console.log("tim thay", data);
     return data;
   };
   static findByRefreshToken = async ({ refreshToken }) => {

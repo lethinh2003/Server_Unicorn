@@ -141,7 +141,9 @@ class UsersController {
     const checkTokenUsed = await KeysService.findByRefreshTokensUsed({
       refreshToken,
     });
+
     if (checkTokenUsed) {
+      console.log("heheh");
       // Delete current Keys -> Log out user
       await KeysService.deleteByID({
         ID: checkTokenUsed._id,

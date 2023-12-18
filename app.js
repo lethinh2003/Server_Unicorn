@@ -44,6 +44,7 @@ const limiter = rateLimit({
   max: 300,
   windowMs: 60 * 1000,
   message: "Quá nhiều yêu cầu từ hệ thống, vui lòng thử lại sau 1 phút nữa",
+  validate: { xForwardedForHeader: false },
 });
 app.use("/api", limiter);
 
