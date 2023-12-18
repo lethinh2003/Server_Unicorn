@@ -7,8 +7,7 @@ class ProductsService {
       status: true,
       $or: [{ parent_product_id: null }, { parent_product_id: undefined }],
       $text: { $search: query },
-    })
-    .lean();
+    }).lean();
     return results;
   };
   static findAllProducts = async ({}) => {
@@ -91,6 +90,19 @@ class ProductsService {
       .lean();
     return results;
   };
+  static getAllParentProductsAdminByGender = async ({ gender }) => {
+    let query = {
+      status: true,
+      product_gender: gender,
+      $or: [{ parent_product_id: null }, { parent_product_id: undefined }],
+    };
+
+    const results = await Products.find(query)
+
+      .sort("-createdAt")
+      .lean();
+    return results;
+  };
   static findAllParentSaleProducts = async ({ skipItems, limitItems }) => {
     let query = {
       status: true,
@@ -147,6 +159,7 @@ class ProductsService {
       .lean();
     return results;
   };
+
   static findAllChildProductsByParent = async ({ parentProductId }) => {
     const results = await Products.find({
       parent_product_id: parentProductId,
@@ -176,6 +189,7 @@ class ProductsService {
     productGender,
     productOriginalPrice,
     productDescription,
+    productSaleEvent,
   }) => {
     const result = await Products.create({
       parent_product_id: parentProductId,
@@ -187,6 +201,7 @@ class ProductsService {
       product_gender: productGender,
       product_original_price: productOriginalPrice,
       product_description: productDescription,
+      product_sale_event: productSaleEvent,
     });
     return result;
   };

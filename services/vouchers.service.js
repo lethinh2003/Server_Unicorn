@@ -107,7 +107,17 @@ class VouchersService {
     }).lean();
     return result;
   };
-  static createVoucher = async ({ userId, code, discount, description, minOrderQuantity, minOrderAmount, expiredDate, type }) => {
+  static createVoucher = async ({
+    userId,
+    code,
+    discount,
+    description,
+    minOrderQuantity,
+    minOrderAmount,
+    expiredDate,
+    type,
+    status = true,
+  }) => {
     const result = await Vouchers.create({
       user: userId,
       code,
@@ -117,6 +127,7 @@ class VouchersService {
       min_order_amount: minOrderAmount,
       expired_date: expiredDate,
       type,
+      status,
     });
 
     return result;

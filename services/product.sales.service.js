@@ -12,5 +12,11 @@ class ProductSalesService {
     await item.save();
     return item;
   };
+  static findAllSaleEvents = async () => {
+    const results = await ProductSales.find({
+      status: true,
+    });
+    return results;
+  };
 }
 module.exports = ProductSalesService;

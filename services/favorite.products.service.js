@@ -31,6 +31,7 @@ class FavoriteProductsService {
       })
       .skip(skipItems)
       .limit(limitItems)
+      .sort("-createdAt")
       .lean();
     return results;
   };
@@ -42,6 +43,7 @@ class FavoriteProductsService {
         path: "product_id",
         select: "_id",
       })
+      .sort("-createdAt")
       .lean();
     return results;
   };

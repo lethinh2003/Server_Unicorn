@@ -8,6 +8,7 @@ const ORDER_MESSAGES = {
   PAYMENT_METHOD_IS_NOT_EXISTS: "Phương thức thanh toán không hợp lệ",
   CREATE_ORDER_SUCCESS: "Tạo đơn hàng thành công",
   CANCEL_ORDER_SUCCESS: "Hủy đơn hàng thành công",
+  UPDATE_ORDER_STATUS_SUCCESS: "Cập nhật trạng thái đơn hàng thành công",
   MIN_CART_ITEMS_REQUIRED: "Cần tối thiểu một sản phẩm để thanh toán",
   PRODUCT_ITEMS_QUANTITIES_INVALID: "Trong giỏ hàng có sản phẩm không tồn tại (hoặc đã hết hàng)",
 };

@@ -131,6 +131,7 @@ app.use("/api/v1/product-reviews", productReviewsRouters);
 app.use("/api/v1/favorite-products", favoriteProductsRouters);
 app.use("/IPN", require("./routers/vnpay.routers"));
 app.use("/api/v1/search", require("./routers/search.routers"));
+app.use("/api/v1/notifications", require("./routers/notifications.routers"));
 
 app.all("*", (req, res, next) => {
   next(new NotFoundError(`No found ${req.originalUrl}`));

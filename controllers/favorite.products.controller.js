@@ -43,11 +43,14 @@ class FavoriteProductsController {
       userId,
     });
 
+    // only get product_id field
+    let newResult = results.flatMap((productId) => productId.product_id);
+
     return new OkResponse({
-      data: results.flatMap((productId) => productId.product_id),
+      data: newResult,
       metadata: {
         userId,
-        results: results.length,
+        results: newResult.length,
       },
     }).send(res);
   });

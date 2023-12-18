@@ -4,6 +4,30 @@ const Orders = require("../models/Orders");
 const ORDER_QUERY_TYPE = { ...ORDER_STATUS, ALL: "all" };
 
 class OrdersService {
+  static getMonthlyRevenueData = async ({ startDate, endDate }) => {
+    const monthlyData = await Orders.aggregate([
+      {
+        $match: {
+          order_status: ORDER_QUERY_TYPE.DELIVERED,
+          createdAt: {
+            $gte: startDate,
+            $lt: endDate,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { month: { $month: "$createdAt" } },
+          revenue: { $sum: "$total" },
+        },
+      },
+      {
+        $sort: { "_id.month": 1 }, // Sort by month
+      },
+    ]);
+
+    return monthlyData;
+  };
   static findOrders = async ({ userId, limitItems, skipItems, type }) => {
     let results = [];
     if (type === ORDER_QUERY_TYPE.ALL) {
@@ -35,6 +59,20 @@ class OrdersService {
       update,
       options
     );
+    return data;
+  };
+  static countOrders = async () => {
+    const data = await Orders.countDocuments({});
+    return data;
+  };
+  static revenuePeriodTime = async ({ startDate, endDate }) => {
+    const data = await Orders.find({
+      order_status: ORDER_QUERY_TYPE.DELIVERED,
+      createdAt: {
+        $gte: startDate,
+        $lt: endDate,
+      },
+    });
     return data;
   };
   static findByIdAndUserId = async ({ _id, userId }) => {

@@ -3,6 +3,11 @@
 const Users = require("../models/Users");
 
 class UsersService {
+  static countUsers = async () => {
+    const data = await Users.countDocuments({});
+    return data;
+  };
+
   static updatePasswordUser = async ({ new_password, _id }) => {
     const user = await Users.findOneAndUpdate(
       { _id },
