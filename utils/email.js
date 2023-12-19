@@ -23,6 +23,7 @@ const sendEmail = async (options) => {
 
     await transport.sendMail(mailOptions);
   } catch (err) {
+    console.log(err);
     throw new BadRequestError(`${USER_MESSAGES.SEND_MAIL_FAILED}: ${err.message}`);
   }
 };

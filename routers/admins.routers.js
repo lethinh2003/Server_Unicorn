@@ -12,5 +12,6 @@ router.use("/users", require("./admin.users.routers"));
 router.use("/orders", require("./admin.orders.routers"));
 router.use("/products", require("./admin.products.routers"));
 router.use("/vouchers", require("./admin.vouchers.routers"));
+router.use("/product-categories", require("./admin.product.categories.routers"));
 
 module.exports = router;

@@ -3,6 +3,9 @@ const productCategoriesController = require("../controllers/product.categories.c
 const authController = require("../controllers/auth.controller");
 
 const router = express.Router();
+
+router.route("/parents").get(productCategoriesController.getAllParentCategoriesByGender);
+
 /**
  * @swagger
  * /product-categories:

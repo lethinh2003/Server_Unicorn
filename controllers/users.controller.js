@@ -11,6 +11,8 @@ const { CreatedResponse, OkResponse } = require("../utils/success_response");
 const crypto = require("crypto");
 const { createToken } = require("../utils/authUtils");
 const sendMail = require("../utils/email");
+const EmailService = require("../services/email.service");
+const mongoose = require("mongoose");
 
 class UsersController {
   getInformationUser = catchAsync(async (req, res, next) => {
@@ -211,41 +213,56 @@ class UsersController {
 
   sendResetPasswordOTP = catchAsync(async (req, res, next) => {
     const { email } = req.body;
-    if (!email) {
-      return next(new UnauthorizedError(USER_MESSAGES.INPUT_MISSING));
-    }
-    // Check email is exist
-    const findUser = await UsersService.findByEmail({ email });
-    if (!findUser) {
-      return next(new NotFoundError(USER_MESSAGES.EMAIL_NOT_EXIST_DB));
-    }
-    // Check time send OTP > 10 min
-    if (Date.now() - new Date(findUser.time_reset_password_otp) < 10 * 60 * 1000) {
-      return next(new UnauthorizedError(USER_MESSAGES.SEND_RESET_PASSWORD_OTP_TIME_FAILED));
-    }
-    // Create OTP (6 bytes)
-    const otp = crypto
-      .randomInt(0, 10 ** 6 - 1)
-      .toString()
-      .padStart(6, "0");
 
-    // Update OTP in DB
-    const updateOTP = UsersService.createOTPResetPassword({
-      email,
-      otp,
-    });
-    // Send OTP to email
-    const sendOTP = sendMail({
-      email: email,
-      subject: "Mã OTP khôi phục mật khẩu UniCorn",
-      text: `Mã OTP khôi phục mật khẩu UniCorn của bạn là: ${otp}. Mã này chỉ có thời hạn trong 10 phút kể từ khi được gửi`,
-      mesage: `Mã OTP khôi phục mật khẩu UniCorn của bạn là: ${otp}. Mã này chỉ có thời hạn trong 10 phút kể từ khi được gửi`,
-    });
-    await Promise.all([updateOTP, sendOTP]);
+    const session = await mongoose.startSession();
 
-    return new OkResponse({
-      message: USER_MESSAGES.SEND_RESET_PASSWORD_OTP_SUCCESS,
-    }).send(res);
+    const options = { session };
+    try {
+      await session.withTransaction(async () => {
+        try {
+          if (!email) {
+            throw new UnauthorizedError(USER_MESSAGES.INPUT_MISSING);
+          }
+
+          // Check email is exist
+          const findUser = await UsersService.findByEmail({ email });
+          if (!findUser) {
+            throw new NotFoundError(USER_MESSAGES.EMAIL_NOT_EXIST_DB);
+          }
+          // Check time send OTP > 10 min
+          if (Date.now() - new Date(findUser.time_reset_password_otp) < 10 * 60 * 1000) {
+            throw new UnauthorizedError(USER_MESSAGES.SEND_RESET_PASSWORD_OTP_TIME_FAILED);
+          }
+          // Create OTP (6 bytes)
+          const otp = crypto
+            .randomInt(0, 10 ** 6 - 1)
+            .toString()
+            .padStart(6, "0");
+
+          // Update OTP in DB
+          const updateOTP = UsersService.createOTPResetPassword({
+            email,
+            otp,
+            options,
+          });
+          // Send OTP to email
+          const sendOTP = EmailService.sendOTPResetPassword({ email, otp });
+          await Promise.all([updateOTP, sendOTP]);
+
+          await session.commitTransaction();
+          return new OkResponse({
+            message: USER_MESSAGES.SEND_RESET_PASSWORD_OTP_SUCCESS,
+          }).send(res);
+        } catch (err) {
+          await session.abortTransaction();
+          throw err;
+        }
+      });
+    } catch (err) {
+      return next(err);
+    } finally {
+      session.endSession();
+    }
   });
   resetPassword = catchAsync(async (req, res, next) => {
     const { email, otp } = req.body;

@@ -15,6 +15,22 @@ class ProductCategoriesController {
       data: results,
     }).send(res);
   });
+  getAllParentCategoriesByGender = catchAsync(async (req, res, next) => {
+    const { gender } = req.query;
+    let checkGenderExists = Object.values(PRODUCT_GENDERS).includes(gender);
+    if (!checkGenderExists) {
+      return next(new UnauthorizedError(PRODUCT_MESSAGES.INPUT_MISSING));
+    }
+    // Find parent category
+    const listParentCategories = await ProductCategoriesService.findAllParentCategories({ gender });
+
+    return new OkResponse({
+      data: listParentCategories,
+      metadata: {
+        gender,
+      },
+    }).send(res);
+  });
   getAllCategoriesByGender = catchAsync(async (req, res, next) => {
     const { gender } = req.query;
     let checkGenderExists = Object.values(PRODUCT_GENDERS).includes(gender);

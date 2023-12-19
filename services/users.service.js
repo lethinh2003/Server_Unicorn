@@ -58,7 +58,7 @@ class UsersService {
     }).lean();
     return user;
   };
-  static createOTPResetPassword = async ({ email, otp }) => {
+  static createOTPResetPassword = async ({ email, otp, options = {} }) => {
     const result = await Users.findOneAndUpdate(
       {
         email,
@@ -66,7 +66,8 @@ class UsersService {
       {
         reset_password_otp: otp,
         time_reset_password_otp: new Date(Date.now()),
-      }
+      },
+      options
     );
     return result;
   };

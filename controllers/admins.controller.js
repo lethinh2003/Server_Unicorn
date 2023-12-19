@@ -31,6 +31,7 @@ const ProductSalesService = require("../services/product.sales.service");
 const NotificationsService = require("../services/notifications.service");
 const { NOTIFICATION_TYPES } = require("../configs/config.notifications");
 const { VOUCHER_MESSAGES } = require("../configs/config.voucher.messages");
+const EmailService = require("../services/email.service");
 
 const LIMIT_ITEMS = 10;
 class AdminsController {
@@ -348,6 +349,9 @@ class AdminsController {
       await session.withTransaction(async () => {
         const findOrder = await OrdersService.findById({ _id: orderId, options });
         if (findOrder) {
+          const findUser = await AdminsService.findUserById({
+            userId: findOrder.user,
+          });
           const previousStatus = findOrder.order_status;
           // Update status order
           await OrdersService.updateOneById({
@@ -360,38 +364,56 @@ class AdminsController {
 
           // Notifications
           if (orderStatus === ORDER_STATUS.DELIVERING) {
-            NotificationsService.createNotification({
-              receiveId: findOrder.user,
-              type: NOTIFICATION_TYPES.ORDER,
-              title: "Đơn hàng đã được xác nhận và đang vận chuyển",
-              content: "Đơn hàng của bạn đang được vận chuyển, hãy chờ điện thoại để nhận hàng",
-              image: "https://i.imgur.com/KfHzRg5.png",
-              options: {
+            await Promise.all([
+              EmailService.sendEmailOrderDeliveringStatus({
+                email: findUser.email,
                 orderId: findOrder._id,
-              },
-            }).catch((err) => console.log(err));
+              }),
+              NotificationsService.createNotification({
+                receiveId: findOrder.user,
+                type: NOTIFICATION_TYPES.ORDER,
+                title: "Đơn hàng đã được xác nhận và đang vận chuyển",
+                content: `Đơn hàng ${findOrder._id} của bạn đang được vận chuyển, hãy chờ điện thoại để nhận hàng`,
+                image: "https://i.imgur.com/KfHzRg5.png",
+                options: {
+                  orderId: findOrder._id,
+                },
+              }),
+            ]);
           } else if (orderStatus === ORDER_STATUS.DELIVERED) {
-            NotificationsService.createNotification({
-              receiveId: findOrder.user,
-              type: NOTIFICATION_TYPES.ORDER,
-              title: "Đơn hàng đã được giao thành công",
-              content: "Đơn hàng của bạn đã được giao, hãy đánh giá trải nghiệm mua hàng của bạn nhé",
-              image: "https://i.imgur.com/x65j6RE.png",
-              options: {
+            await Promise.all([
+              EmailService.sendEmailOrderDeliveredStatus({
+                email: findUser.email,
                 orderId: findOrder._id,
-              },
-            }).catch((err) => console.log(err));
+              }),
+              NotificationsService.createNotification({
+                receiveId: findOrder.user,
+                type: NOTIFICATION_TYPES.ORDER,
+                title: "Đơn hàng đã được giao thành công",
+                content: `Đơn hàng ${findOrder._id} của bạn đã được giao, hãy đánh giá trải nghiệm mua hàng của bạn nhé`,
+                image: "https://i.imgur.com/x65j6RE.png",
+                options: {
+                  orderId: findOrder._id,
+                },
+              }),
+            ]);
           } else if (orderStatus === ORDER_STATUS.CANCELLED) {
-            NotificationsService.createNotification({
-              receiveId: findOrder.user,
-              type: NOTIFICATION_TYPES.ORDER,
-              title: "Đơn hàng đã bị hủy",
-              content: "Đơn hàng của bạn đã bị hủy, vui lòng liên hệ quản trị để biết thêm chi tiết",
-              image: "https://i.imgur.com/ZVCwRzt.png",
-              options: {
+            await Promise.all([
+              EmailService.sendEmailOrderCancelledStatus({
+                email: findUser.email,
                 orderId: findOrder._id,
-              },
-            }).catch((err) => console.log(err));
+              }),
+              NotificationsService.createNotification({
+                receiveId: findOrder.user,
+                type: NOTIFICATION_TYPES.ORDER,
+                title: "Đơn hàng đã bị hủy",
+                content: `Đơn hàng ${findOrder._id} của bạn đã bị hủy, vui lòng liên hệ quản trị để biết thêm chi tiết`,
+                image: "https://i.imgur.com/ZVCwRzt.png",
+                options: {
+                  orderId: findOrder._id,
+                },
+              }),
+            ]);
           }
           // If current status is not cancelled, and status update is cancelled -> restore quantity product
           if (previousStatus !== ORDER_STATUS.CANCELLED && orderStatus === ORDER_STATUS.CANCELLED) {
@@ -648,6 +670,19 @@ class AdminsController {
       data: result,
     }).send(res);
   });
+  getDetailedCategory = catchAsync(async (req, res, next) => {
+    const { categoryId } = req.params;
+    const result = await AdminsService.findDetailProductCategory({
+      categoryId,
+    });
+    if (!result) {
+      return next(new BadRequestError(PRODUCT_MESSAGES.PRODUCT_CATEGORY_IS_NOT_EXISTS));
+    }
+
+    return new OkResponse({
+      data: result,
+    }).send(res);
+  });
 
   createVoucher = catchAsync(async (req, res, next) => {
     const { userId, code, discount, description, minOrderQuantity, minOrderAmount, expiredDate, type, status = true } = req.body;
@@ -693,6 +728,48 @@ class AdminsController {
 
     return new CreatedResponse({
       message: VOUCHER_MESSAGES.ADD_VOUCHER_SUCCESS,
+    }).send(res);
+  });
+
+  getCategories = catchAsync(async (req, res, next) => {
+    const { itemsOfPage, page } = req.query;
+
+    const limitItems = itemsOfPage * 1 || LIMIT_ITEMS;
+    const currentPage = page * 1 || 1;
+    const skipItems = (currentPage - 1) * limitItems;
+    const countAllCategories = await AdminsService.countAllProductCategories();
+
+    const results = await AdminsService.findCategories({ limitItems, skipItems });
+    return new OkResponse({
+      data: results,
+      metadata: {
+        page: currentPage,
+        limit: limitItems,
+        results: results.length,
+        allResults: countAllCategories,
+        pageCount: Math.ceil(countAllCategories / limitItems),
+      },
+    }).send(res);
+  });
+
+  updateCategory = catchAsync(async (req, res, next) => {
+    const { categoryId, parentCategory, categoryImage, categoryGender, categoryKeyword, categoryName, categoryStatus } = req.body;
+
+    if (!categoryId || !categoryImage || !categoryGender || !categoryName) {
+      return next(new UnauthorizedError(PRODUCT_MESSAGES.INPUT_MISSING));
+    }
+    const result = await AdminsService.updateCategory({
+      categoryId,
+      parentCategory: parentCategory ? parentCategory : undefined,
+      categoryImage,
+      categoryGender,
+      categoryKeyword,
+      categoryName,
+      categoryStatus,
+    });
+
+    return new OkResponse({
+      message: PRODUCT_MESSAGES.UPDATE_PRODUCT_CATEGORY_SUCCESS,
     }).send(res);
   });
 }

@@ -26,6 +26,7 @@ const cronTasksService = require("../services/cron.tasks.service");
 const HistoryOnlinePaymentsFactory = require("../services/history.online.payment.service");
 const { selectFields } = require("../utils/selectFields");
 const OrderItems = require("../models/OrderItems");
+const EmailService = require("../services/email.service");
 
 const ORDER_QUERY_TYPE = { ...ORDER_STATUS, ALL: "all" };
 
@@ -86,45 +87,51 @@ class OrdersController {
     const options = { session };
     try {
       await session.withTransaction(async () => {
-        const findOrder = await OrdersService.findByIdAndUser({ _id: orderId, userId: userId, options });
-        if (findOrder) {
-          if (
-            findOrder.order_status === ORDER_STATUS.PAYMENT_PENDING ||
-            findOrder.order_status === ORDER_STATUS.PENDING ||
-            findOrder.order_status === ORDER_STATUS.DELIVERING
-          ) {
-            // Update canceled status order
-            await OrdersService.updateOneById({
-              _id: orderId,
-              update: {
-                order_status: ORDER_STATUS.CANCELLED,
-              },
-              options,
-            });
-
-            // Restore quantity products
-            const listOrderItems = await OrderItemsService.findByOrderId({
-              orderId: orderId,
-              options,
-            });
-            const listProducts = listOrderItems.map((orderItem) => orderItem.data);
-
-            const listUpdateQuantityProducts = listProducts.map((item) => {
-              return ProductsService.increseQuantityProduct({
-                productId: item.product,
-                productSize: item.size,
-                productQuantities: item.quantities,
+        try {
+          const findOrder = await OrdersService.findByIdAndUser({ _id: orderId, userId: userId, options });
+          if (findOrder) {
+            if (
+              findOrder.order_status === ORDER_STATUS.PAYMENT_PENDING ||
+              findOrder.order_status === ORDER_STATUS.PENDING ||
+              findOrder.order_status === ORDER_STATUS.DELIVERING
+            ) {
+              // Update canceled status order
+              await OrdersService.updateOneById({
+                _id: orderId,
+                update: {
+                  order_status: ORDER_STATUS.CANCELLED,
+                },
                 options,
               });
-            });
-            await Promise.all(listUpdateQuantityProducts);
+
+              // Restore quantity products
+              const listOrderItems = await OrderItemsService.findByOrderId({
+                orderId: orderId,
+                options,
+              });
+              const listProducts = listOrderItems.map((orderItem) => orderItem.data);
+
+              const listUpdateQuantityProducts = listProducts.map((item) => {
+                return ProductsService.increseQuantityProduct({
+                  productId: item.product,
+                  productSize: item.size,
+                  productQuantities: item.quantities,
+                  options,
+                });
+              });
+              await Promise.all(listUpdateQuantityProducts);
+              await session.commitTransaction();
+            } else {
+              throw new BadRequestError(ORDER_MESSAGES.CANNOT_CANCEL);
+            }
           } else {
-            throw new BadRequestError(ORDER_MESSAGES.CANNOT_CANCEL);
+            throw new BadRequestError(ORDER_MESSAGES.ORDER_IS_NOT_EXISTS);
           }
-        } else {
-          throw new BadRequestError(ORDER_MESSAGES.ORDER_IS_NOT_EXISTS);
+        } catch (err) {
+          await session.abortTransaction();
+          throw err;
         }
-      }, options);
+      });
     } catch (err) {
       throw err;
     } finally {
@@ -137,9 +144,9 @@ class OrdersController {
 
   createOrder = catchAsync(async (req, res, next) => {
     const session = await mongoose.startSession();
+    session.startTransaction();
     try {
-      session.startTransaction();
-      const { _id: userId } = req.user;
+      const { _id: userId, email } = req.user;
       const { note, voucher, address, paymentMethod } = req.body;
       if (!paymentMethod || !address) {
         throw new UnauthorizedError(USER_MESSAGES.INPUT_MISSING);
@@ -285,6 +292,35 @@ class OrdersController {
       });
 
       await Promise.all(listCreateOrderItems);
+
+      const addressSendEmail = `${full_name}, ${phone_number}, ${detail_address}, ${district}, ${ward}, ${provine}`;
+      const listOrdertItemSendEmail = listCartItems.map((cartItem) => {
+        const { _id, product_images, product_gender, product_original_price, product_name, product_color, product_sale_event } =
+          cartItem.data.product;
+        const { _id: sizeId, product_size_name } = cartItem.data.size;
+        const totalAmount = Math.round(cartItem.data.product.product_original_price * cartItem.data.quantities);
+        return {
+          product_image: product_images[0],
+          product_name,
+          product_quantity: cartItem.data.quantities,
+          product_totalAmount: totalAmount,
+          product_color: product_color.product_color_name,
+          product_size: product_size_name,
+        };
+      });
+      const orderDataSendMail = {
+        order_id: newOrder._id,
+        order_address: addressSendEmail,
+        order_date: newOrder.createdAt,
+        sub_total: newOrder.subTotal,
+        shipping_cost: newOrder.shippingCost,
+        discount_amount: newOrder.discountAmount,
+        total: newOrder.total,
+        order_note: note,
+        listItems: listOrdertItemSendEmail,
+      };
+
+      await EmailService.sendEmailCreateOrder({ email, orderData: orderDataSendMail });
 
       // Delete all cart items
       await CartItemsService.deleteCartItemsByCartId({

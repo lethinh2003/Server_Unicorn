@@ -15,6 +15,7 @@ const PRODUCT_MESSAGES = {
 
   CREATE_PRODUCT_SUCCESS: "Tạo sản phẩm thành công",
   UPDATE_PRODUCT_SUCCESS: "Update sản phẩm thành công",
+  UPDATE_PRODUCT_CATEGORY_SUCCESS: "Update danh mục thành công",
   DELETE_PRODUCT_SUCCESS: "Xóa sản phẩm thành công",
 
   SALE_EVENT_NAME_INVALID: "Tên sự kiện sale phải từ 5 kí tự trở lên",
@@ -27,6 +28,7 @@ const PRODUCT_MESSAGES = {
   FAVORITE_IS_EXISTS: "Sản phẩm đã được thêm vào danh sách yêu thích",
   FAVORITE_IS_NOT_EXISTS: "Sản phẩm chưa được thêm vào danh sách yêu thích",
   PRODUCT_IS_NOT_EXISTS: "Sản phẩm không tồn tại",
+  PRODUCT_CATEGORY_IS_NOT_EXISTS: "Danh mục sản phẩm không tồn tại",
   PRODUCT_IS_NOT_AVAILABLE: "Sản phẩm không có sẵn hàng",
 
   SALE_EVENT_CREATE_FAILURE: "Tạo sale event thất bại",
