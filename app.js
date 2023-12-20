@@ -11,7 +11,7 @@ const path = require("path");
 const app = express();
 const { NotFoundError } = require("./utils/app_error");
 const {
-  endpoint: { client },
+  endpoint: { client, server },
 } = require("./configs/config.endpoint");
 const errorController = require("./controllers/error_controller");
 const { UPLOAD_PATH } = require("./configs/config.upload.path");
@@ -77,7 +77,7 @@ const options = {
     },
     servers: [
       {
-        url: `http://localhost:8084/api/v1`,
+        url: `${server}/api/v1`,
         description: "Development server",
       },
     ],
