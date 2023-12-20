@@ -8,12 +8,14 @@ const sendEmail = require("../utils/email");
 const { templateEmailDefault, templateCreateOrder } = require("../configs/templates.email");
 const { convertDateTime } = require("../utils/convertTime");
 const { convertMoney } = require("../utils/convertMoney");
-
+const {
+  endpoint: { clientEndpoint },
+} = require("../configs/config.endpoint");
 class EmailService {
   static sendOTPResetPassword = async ({ email, otp }) => {
     let templateHTML = templateEmailDefault.replace("{{title}}", "Mã OTP khôi phục mật khẩu Unicorn");
     templateHTML = templateHTML.replace("{{name}}", "bạn");
-    templateHTML = templateHTML.replace("{{home_page}}", "http://localhost:3005");
+    templateHTML = templateHTML.replaceAll("{{home_page}}", clientEndpoint);
     templateHTML = templateHTML.replace(
       "{{body}}",
       `Mã OTP khôi phục mật khẩu Unicorn của bạn là: ${otp}. Mã này chỉ có thời hạn trong 10 phút kể từ khi được gửi`
@@ -30,7 +32,7 @@ class EmailService {
   static sendEmailOrderDeliveringStatus = async ({ email, orderId }) => {
     let templateHTML = templateEmailDefault.replace("{{title}}", `Đơn hàng ${orderId} đang được vận chuyển`);
     templateHTML = templateHTML.replace("{{name}}", "bạn");
-    templateHTML = templateHTML.replace("{{home_page}}", "http://localhost:3005");
+    templateHTML = templateHTML.replaceAll("{{home_page}}", clientEndpoint);
     templateHTML = templateHTML.replace(
       "{{body}}",
       `Đơn hàng ${orderId} đã được xác nhận và đang được vận chuyển đến tay bạn. Hãy chờ nhận hàng từ shipper nhé!`
@@ -47,7 +49,7 @@ class EmailService {
   static sendEmailOrderDeliveredStatus = async ({ email, orderId }) => {
     let templateHTML = templateEmailDefault.replace("{{title}}", `Đơn hàng ${orderId} đã giao thành công`);
     templateHTML = templateHTML.replace("{{name}}", "bạn");
-    templateHTML = templateHTML.replace("{{home_page}}", "http://localhost:3005");
+    templateHTML = templateHTML.replaceAll("{{home_page}}", clientEndpoint);
     templateHTML = templateHTML.replace(
       "{{body}}",
       `Đơn hàng ${orderId} đã được giao thành công, hãy đánh giá để nêu lên cảm nhận của bạn về sản phẩm nhé!`
@@ -64,7 +66,7 @@ class EmailService {
   static sendEmailOrderCancelledStatus = async ({ email, orderId }) => {
     let templateHTML = templateEmailDefault.replace("{{title}}", `Đơn hàng ${orderId} đã bị hủy`);
     templateHTML = templateHTML.replace("{{name}}", "bạn");
-    templateHTML = templateHTML.replace("{{home_page}}", "http://localhost:3005");
+    templateHTML = templateHTML.replaceAll("{{home_page}}", clientEndpoint);
     templateHTML = templateHTML.replace("{{body}}", `Đơn hàng ${orderId} đã bị hủy, vui lòng liên hệ quản trị để được hỗ trợ!`);
 
     const sendOTP = await sendEmail({
@@ -85,7 +87,7 @@ class EmailService {
     templateHTML = templateHTML.replace("{{shipping_cost}}", convertMoney(orderData.shipping_cost));
     templateHTML = templateHTML.replace("{{discount_amount}}", convertMoney(orderData.discount_amount));
     templateHTML = templateHTML.replace("{{total}}", convertMoney(orderData.total));
-    templateHTML = templateHTML.replaceAll("{{home_page}}", "http://localhost:3005");
+    templateHTML = templateHTML.replaceAll("{{home_page}}", clientEndpoint);
     templateHTML = templateHTML.replace("{{body}}", `Tạo đơn hàng thành công, vui lòng chờ xác nhận.`);
 
     const templateOrderItem = `<tr>
