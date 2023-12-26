@@ -27,6 +27,7 @@ const HistoryOnlinePaymentsFactory = require("../services/history.online.payment
 const { selectFields } = require("../utils/selectFields");
 const OrderItems = require("../models/OrderItems");
 const EmailService = require("../services/email.service");
+const RedisService = require("../services/redis.service");
 
 const ORDER_QUERY_TYPE = { ...ORDER_STATUS, ALL: "all" };
 
@@ -182,21 +183,28 @@ class OrdersController {
         throw new BadRequestError(ORDER_MESSAGES.MIN_CART_ITEMS_REQUIRED);
       }
 
-      // Check quantity product
+      // Check quantity product and update quantity product
+      // using redis locking
 
-      const listCheckQuantityProducts = listCartItems.map((cartItem) => {
-        const checkAvailableProduct = ProductsService.checkAvailableProduct({
-          productId: cartItem.data.product._id,
-          productQuantities: cartItem.data.quantities,
-          productSize: cartItem.data.size._id,
+      const acquireProduct = [];
+      for (let i = 0; i < listCartItems.length; i++) {
+        const keyLock = await RedisService.acquireLock({
+          productId: listCartItems[i].data.product._id,
+          productQuantities: listCartItems[i].data.quantities,
+          productSize: listCartItems[i].data.size._id,
           options,
         });
-        return checkAvailableProduct;
-      });
 
-      const checkQuantityProducts = await Promise.all(listCheckQuantityProducts);
-      if (checkQuantityProducts.includes(false)) {
-        throw new BadRequestError(ORDER_MESSAGES.PRODUCT_ITEMS_QUANTITIES_INVALID);
+        acquireProduct.push(keyLock ? true : false);
+        if (keyLock) {
+          await RedisService.releaseLock(keyLock);
+        }
+      }
+
+      console.log({ user: userId, acquireProduct });
+
+      if (acquireProduct.includes(false)) {
+        throw new BadRequestError(ORDER_MESSAGES.PRODUCT_ITEMS_RENEW);
       }
 
       // ADDRESS
@@ -338,16 +346,6 @@ class OrdersController {
           options,
         });
       }
-      // Update quantities products
-      const listUpdateQuantityProducts = listCartItems.map((cartItem) => {
-        return ProductsService.decreseQuantityProduct({
-          productId: cartItem.data.product._id,
-          productSize: cartItem.data.size._id,
-          productQuantities: cartItem.data.quantities,
-          options,
-        });
-      });
-      await Promise.all(listUpdateQuantityProducts);
 
       // If banking method -> create 1 cron job check 10 minutes after new order was created
       if (paymentMethod === CART_PAYMENT_METHOD.BANKING) {

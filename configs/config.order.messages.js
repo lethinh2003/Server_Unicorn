@@ -11,5 +11,6 @@ const ORDER_MESSAGES = {
   UPDATE_ORDER_STATUS_SUCCESS: "Cập nhật trạng thái đơn hàng thành công",
   MIN_CART_ITEMS_REQUIRED: "Cần tối thiểu một sản phẩm để thanh toán",
   PRODUCT_ITEMS_QUANTITIES_INVALID: "Trong giỏ hàng có sản phẩm không tồn tại (hoặc đã hết hàng)",
+  PRODUCT_ITEMS_RENEW: "Trong giỏ hàng có sản phẩm đã được cập nhật, vui lòng thử lại",
 };
 module.exports = { ORDER_MESSAGES };
