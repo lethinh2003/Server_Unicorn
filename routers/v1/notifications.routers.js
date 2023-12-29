@@ -1,6 +1,6 @@
 const express = require("express");
-const notificationsController = require("../controllers/notifications.controller");
-const authController = require("../controllers/auth.controller");
+const notificationsController = require("../../controllers/notifications.controller");
+const authController = require("../../controllers/auth.controller");
 
 const router = express.Router();
 router.route("/").get(authController.protect, notificationsController.getNotifications);

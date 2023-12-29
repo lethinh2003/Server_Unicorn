@@ -1,7 +1,7 @@
 const express = require("express");
-const cartsController = require("../controllers/carts.controller");
-const cartItemsRouter = require("../routers/cart.items.routers");
-const authController = require("../controllers/auth.controller");
+const cartsController = require("../../controllers/carts.controller");
+const cartItemsRouter = require("./cart.items.routers");
+const authController = require("../../controllers/auth.controller");
 
 const router = express.Router();
 router.route("/").get(authController.protect, cartsController.getUserCart);

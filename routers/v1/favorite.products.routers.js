@@ -1,6 +1,6 @@
 const express = require("express");
-const favoriteProductsController = require("../controllers/favorite.products.controller");
-const authController = require("../controllers/auth.controller");
+const favoriteProductsController = require("../../controllers/favorite.products.controller");
+const authController = require("../../controllers/auth.controller");
 
 const router = express.Router();
 /**

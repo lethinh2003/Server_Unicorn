@@ -1,15 +1,26 @@
 const express = require("express");
-const productColorsController = require("../controllers/product.colors.controller");
-const authController = require("../controllers/auth.controller");
+const productCategoriesController = require("../../controllers/product.categories.controller");
+const authController = require("../../controllers/auth.controller");
 
 const router = express.Router();
+
+router.route("/parents").get(productCategoriesController.getAllParentCategoriesByGender);
+
 /**
  * @swagger
- * /product-colors:
+ * /product-categories:
  *   get:
  *     tags:
- *       - Product Color
- *     summary: Lấy thông tin tất cả màu của sản phẩm
+ *       - Product Category
+ *     summary: Lấy thông tin tất cả danh mục sản phẩm
+ *     parameters:
+ *       - in: query
+ *         name: gender
+ *         schema:
+ *           type: string
+ *         required: true
+ *         default: "men"
+ *         description: "Loại đồ: men || women"
  *     responses:
  *       '200':
  *         content:
@@ -34,14 +45,16 @@ const router = express.Router();
  *                   example: {}
  *
  */
-router.route("/").get(productColorsController.getAllColors);
+router.route("/").get(productCategoriesController.getAllCategoriesByGender);
+
+router.route("/list-child").get(productCategoriesController.getChildCategories);
 /**
  * @swagger
- * /product-colors:
+ * /product-categories:
  *   post:
  *     tags:
- *       - Product Color
- *     summary: Tạo màu sản phẩm mới
+ *       - Product Category
+ *     summary: Tạo danh mục sản phẩm mới
  *     requestBody:
  *       required: true
  *       content:
@@ -49,12 +62,18 @@ router.route("/").get(productColorsController.getAllColors);
  *           schema:
  *             type: object
  *             properties:
+ *               parentCategoryId:
+ *                 type: string
+ *                 example: null
  *               name:
  *                 type: string
- *                 example: "Be"
- *               code:
+ *                 example: "Đồ bầu"
+ *               keyword:
  *                 type: string
- *                 example: "#d7b694"
+ *                 example: "maternity"
+ *               gender:
+ *                 type: string
+ *                 example: "women"
  *     responses:
  *       '201':
  *         content:
@@ -81,6 +100,6 @@ router.route("/").get(productColorsController.getAllColors);
  *       - bearerAuth: []
  *       - clientIdAuth: []
  */
-router.route("/").post(authController.protect, authController.reStrictTo(["admin"]), productColorsController.createColor);
+router.route("/").post(authController.protect, authController.reStrictTo(["admin"]), productCategoriesController.createCategory);
 
 module.exports = router;

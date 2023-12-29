@@ -1,26 +1,15 @@
 const express = require("express");
-const productCategoriesController = require("../controllers/product.categories.controller");
-const authController = require("../controllers/auth.controller");
+const productColorsController = require("../../controllers/product.colors.controller");
+const authController = require("../../controllers/auth.controller");
 
 const router = express.Router();
-
-router.route("/parents").get(productCategoriesController.getAllParentCategoriesByGender);
-
 /**
  * @swagger
- * /product-categories:
+ * /product-colors:
  *   get:
  *     tags:
- *       - Product Category
- *     summary: Lấy thông tin tất cả danh mục sản phẩm
- *     parameters:
- *       - in: query
- *         name: gender
- *         schema:
- *           type: string
- *         required: true
- *         default: "men"
- *         description: "Loại đồ: men || women"
+ *       - Product Color
+ *     summary: Lấy thông tin tất cả màu của sản phẩm
  *     responses:
  *       '200':
  *         content:
@@ -45,16 +34,14 @@ router.route("/parents").get(productCategoriesController.getAllParentCategoriesB
  *                   example: {}
  *
  */
-router.route("/").get(productCategoriesController.getAllCategoriesByGender);
-
-router.route("/list-child").get(productCategoriesController.getChildCategories);
+router.route("/").get(productColorsController.getAllColors);
 /**
  * @swagger
- * /product-categories:
+ * /product-colors:
  *   post:
  *     tags:
- *       - Product Category
- *     summary: Tạo danh mục sản phẩm mới
+ *       - Product Color
+ *     summary: Tạo màu sản phẩm mới
  *     requestBody:
  *       required: true
  *       content:
@@ -62,18 +49,12 @@ router.route("/list-child").get(productCategoriesController.getChildCategories);
  *           schema:
  *             type: object
  *             properties:
- *               parentCategoryId:
- *                 type: string
- *                 example: null
  *               name:
  *                 type: string
- *                 example: "Đồ bầu"
- *               keyword:
+ *                 example: "Be"
+ *               code:
  *                 type: string
- *                 example: "maternity"
- *               gender:
- *                 type: string
- *                 example: "women"
+ *                 example: "#d7b694"
  *     responses:
  *       '201':
  *         content:
@@ -100,6 +81,6 @@ router.route("/list-child").get(productCategoriesController.getChildCategories);
  *       - bearerAuth: []
  *       - clientIdAuth: []
  */
-router.route("/").post(authController.protect, authController.reStrictTo(["admin"]), productCategoriesController.createCategory);
+router.route("/").post(authController.protect, authController.reStrictTo(["admin"]), productColorsController.createColor);
 
 module.exports = router;

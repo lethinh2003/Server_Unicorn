@@ -1,7 +1,7 @@
 const express = require("express");
-const usersController = require("../controllers/users.controller");
-const authController = require("../controllers/auth.controller");
-const userAddressRouters = require("../routers/user.addresses.routers");
+const usersController = require("../../controllers/users.controller");
+const authController = require("../../controllers/auth.controller");
+const userAddressRouters = require("./user.addresses.routers");
 const router = express.Router();
 /**
  * @swagger

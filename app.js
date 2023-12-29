@@ -15,22 +15,8 @@ const {
 } = require("./configs/config.endpoint");
 const errorController = require("./controllers/error_controller");
 const { UPLOAD_PATH } = require("./configs/config.upload.path");
-const userRouters = require("./routers/users.routers");
-const productSalesRouters = require("./routers/product.sales.routers");
-const productSizesRouters = require("./routers/product.sizes.routers");
-const productColorsRouters = require("./routers/product.colors.routers");
-const productCategoriesRouters = require("./routers/product.categories.routers");
-const productReviewsRouters = require("./routers/product.reviews.routers");
-const favoriteProductsRouters = require("./routers/favorite.products.routers");
-const productsRouters = require("./routers/products.routers");
-const vouchersRouters = require("./routers/vouchers.routers");
-const cartsRouters = require("./routers/carts.routers");
-const ordersRouters = require("./routers/orders.routers");
-const uploadRouters = require("./routers/upload.routers");
-const adminRouters = require("./routers/admins.routers");
 
 const cors = require("cors");
-const { convertDateTime } = require("./utils/convertTime");
 const compression = require("compression");
 //MIDDLEWARE
 app.use(cors());
@@ -78,7 +64,7 @@ const options = {
     servers: [
       {
         url: `${server}/api/v1`,
-        description: "Development server",
+        description: "API v1",
       },
     ],
     components: {
@@ -98,11 +84,11 @@ const options = {
       },
     },
   },
-  apis: ["./routers/*.routers.js"], // files containing annotations as above
+  apis: ["./routers/v1/*.routers.js"],
 };
 
 const openapiSpecification = swaggerJsdoc(options);
-const customSiteTitle = "Tài liệu Unicorn API";
+const customSiteTitle = "Tài liệu Unicorn API V1";
 
 //routers
 app.get("/", (req, res) => {
@@ -110,29 +96,16 @@ app.get("/", (req, res) => {
 });
 
 app.use(
-  "/api-docs",
+  "/docs/v1",
   swaggerUi.serve,
   swaggerUi.setup(openapiSpecification, {
     customSiteTitle,
   })
 );
 app.use("/public/uploads", express.static(path.join(__dirname, UPLOAD_PATH.PRIMARY_DIR)));
-app.use("/api/v1/admins", adminRouters);
-app.use("/api/v1/uploads", uploadRouters);
-app.use("/api/v1/orders", ordersRouters);
-app.use("/api/v1/carts", cartsRouters);
-app.use("/api/v1/vouchers", vouchersRouters);
-app.use("/api/v1/users", userRouters);
-app.use("/api/v1/products", productsRouters);
-app.use("/api/v1/product-sales", productSalesRouters);
-app.use("/api/v1/product-sizes", productSizesRouters);
-app.use("/api/v1/product-colors", productColorsRouters);
-app.use("/api/v1/product-categories", productCategoriesRouters);
-app.use("/api/v1/product-reviews", productReviewsRouters);
-app.use("/api/v1/favorite-products", favoriteProductsRouters);
+
 app.use("/IPN", require("./routers/vnpay.routers"));
-app.use("/api/v1/search", require("./routers/search.routers"));
-app.use("/api/v1/notifications", require("./routers/notifications.routers"));
+app.use("/api/v1", require("./routers/v1/api.v1"));
 
 app.all("*", (req, res, next) => {
   next(new NotFoundError(`No found ${req.originalUrl}`));

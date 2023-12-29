@@ -1,7 +1,7 @@
 const express = require("express");
-const productReviewsController = require("../controllers/product.reviews.controller");
-const authController = require("../controllers/auth.controller");
-const { uploadCloud: fileUploader } = require("../configs/cloudinary.config");
+const productReviewsController = require("../../controllers/product.reviews.controller");
+const authController = require("../../controllers/auth.controller");
+const { uploadCloud: fileUploader } = require("../../configs/cloudinary.config");
 
 const router = express.Router();
 /**

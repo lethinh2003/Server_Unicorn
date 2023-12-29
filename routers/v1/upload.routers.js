@@ -1,8 +1,8 @@
 const express = require("express");
 const multer = require("multer");
-const { NotFoundError, BadRequestError, UnauthorizedError } = require("../utils/app_error");
-const { UPLOAD_MESSAGES } = require("../configs/config.upload.messages");
-const { UPLOAD_PATH } = require("../configs/config.upload.path");
+const { NotFoundError, BadRequestError, UnauthorizedError } = require("../../utils/app_error");
+const { UPLOAD_MESSAGES } = require("../../configs/config.upload.messages");
+const { UPLOAD_PATH } = require("../../configs/config.upload.path");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -24,7 +24,7 @@ const imageFilter = (req, file, cb) => {
 };
 const MAX_SIZE_FILE = 5; // MB
 const upload = multer({ storage: storage, fileFilter: imageFilter, limits: { fileSize: MAX_SIZE_FILE * 1024 * 1024 } });
-const uploadController = require("../controllers/upload.controller");
+const uploadController = require("../../controllers/upload.controller");
 
 const router = express.Router();
 
