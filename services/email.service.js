@@ -29,6 +29,20 @@ class EmailService {
 
     return sendOTP;
   };
+  static sendOTPNewPassword = async ({ email, newPassword }) => {
+    let templateHTML = templateEmailDefault.replace("{{title}}", "Bạn đã thay đổi mật khẩu UniCorn");
+    templateHTML = templateHTML.replace("{{name}}", "bạn");
+    templateHTML = templateHTML.replaceAll("{{home_page}}", clientEndpoint);
+    templateHTML = templateHTML.replace("{{body}}", `Mật khẩu mới của bạn là: ${newPassword}`);
+
+    const sendOTP = await sendEmail({
+      email: email,
+      subject: "Bạn đã thay đổi mật khẩu UniCorn",
+      message: templateHTML,
+    });
+
+    return sendOTP;
+  };
   static sendEmailOrderDeliveringStatus = async ({ email, orderId }) => {
     let templateHTML = templateEmailDefault.replace("{{title}}", `Đơn hàng ${orderId} đang được vận chuyển`);
     templateHTML = templateHTML.replace("{{name}}", "bạn");

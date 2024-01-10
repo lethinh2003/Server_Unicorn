@@ -1,136 +1,48 @@
 "use strict";
-const { CART_MESSAGES } = require("../configs/config.cart.messages");
-const { VOUCHER_MESSAGES } = require("../configs/config.voucher.messages");
-const Vouchers = require("../models/Vouchers");
-const { BadRequestError } = require("../utils/app_error");
 
+const VoucherRepository = require("../models/repositories/voucher.repository");
+const Fuse = require("fuse.js");
+
+const LIMIT_ITEMS = 10;
 class VouchersService {
-  static deleteByUserId = async ({ userId, options = {} }) => {
-    const data = await Vouchers.deleteMany({
-      user: userId,
-    }).session(options?.session || null);
-    return data;
-  };
-  static updateExpiredVouchers = async ({ userId }) => {
-    const results = await Vouchers.updateExpiredVouchers({
-      userId,
-    });
-    return results;
-  };
-  static countAllByUser = async ({ userId }) => {
-    const results = await Vouchers.countDocuments({
-      user: userId,
-      status: true,
-    });
-    return results;
-  };
-  static deleteOneById = async ({ userId, voucherId }) => {
-    const results = await Vouchers.findOneAndDelete({
-      user: userId,
-      _id: voucherId,
-    });
-    return results;
-  };
-  static updateStatusById = async ({ userId, voucherId, status, options = {} }) => {
-    const results = await Vouchers.findOneAndUpdate(
-      {
+  static getUserVouchers = async ({ itemsOfPage = LIMIT_ITEMS, userId, page = 1, search = "" }) => {
+    const limitItems = itemsOfPage * 1;
+    const currentPage = page * 1;
+    const skipItems = (currentPage - 1) * limitItems;
+    // Update Expired Vouchers
+    await VoucherRepository.updateExpiredVouchers({ userId });
+    // Find list vouchers
+    const results = await VoucherRepository.find({
+      query: {
         user: userId,
-        _id: voucherId,
-      },
-      {
-        status,
-      },
-      options
-    );
-    return results;
-  };
-  static findByUser = async ({ userId, limitItems, skipItems, sort = "expired_date" }) => {
-    const results = await Vouchers.find({
-      user: userId,
-      status: true,
-    })
-      .skip(skipItems)
-      .limit(limitItems)
-      .sort(sort)
-      .lean();
-    return results;
-  };
-  static findOneByUserAndId = async ({ userId, voucherId }) => {
-    const result = await Vouchers.findOne({
-      user: userId,
-      _id: voucherId,
-      status: true,
-    }).lean();
-    return result;
-  };
-  static checkVoucherApplyIsValid = async ({ userId, voucherId, listCartItems = [], options = {} }) => {
-    const result = await Vouchers.findOne(
-      {
-        user: userId,
-        _id: voucherId,
         status: true,
       },
-      null,
-      options
-    ).lean();
-    if (!result) {
-      throw new BadRequestError(VOUCHER_MESSAGES.CODE_IS_NOT_EXISTS);
-    }
-    // check voucher expired
-    const currentDate = new Date();
-    const voucherExpiredDate = new Date(result.expired_date);
-    if (currentDate > voucherExpiredDate) {
-      throw new BadRequestError(VOUCHER_MESSAGES.CODE_IS_EXPIRED);
-    }
-
-    const getTotalAmountCartItems = () => {
-      let totalPrice = 0;
-      listCartItems.forEach((item) => {
-        totalPrice += item.data.product.product_original_price * item.data.quantities;
-      });
-      return totalPrice;
-    };
-    // Check quantity cart item is ok
-    if (listCartItems.length < result.min_order_quantity) {
-      throw new BadRequestError(CART_MESSAGES.MIN_ORDER_QUANTITY_VOUCHER_INVALID);
-    }
-    // Check amount cart item is ok
-    if (getTotalAmountCartItems() < result.min_order_amount) {
-      throw new BadRequestError(CART_MESSAGES.MIN_ORDER_AMOUNT_VOUCHER_INVALID);
-    }
-    return result;
-  };
-  static findOneByUserAndCode = async ({ userId, code }) => {
-    const result = await Vouchers.findOne({
-      user: userId,
-      code: code,
-    }).lean();
-    return result;
-  };
-  static createVoucher = async ({
-    userId,
-    code,
-    discount,
-    description,
-    minOrderQuantity,
-    minOrderAmount,
-    expiredDate,
-    type,
-    status = true,
-  }) => {
-    const result = await Vouchers.create({
-      user: userId,
-      code,
-      discount,
-      description,
-      min_order_quantity: minOrderQuantity,
-      min_order_amount: minOrderAmount,
-      expired_date: expiredDate,
-      type,
-      status,
+      limit: limitItems,
+      skip: skipItems,
+      sort: "expired_date",
+    });
+    const countAllItems = await VoucherRepository.countDocuments({
+      query: {
+        user: userId,
+        status: true,
+      },
     });
 
-    return result;
+    const fuseOptions = {
+      threshold: 0.1,
+      keys: ["discount", "code", "description"],
+    };
+
+    const fuse = new Fuse(results, fuseOptions);
+    let lastResults = [];
+    if (search) {
+      lastResults = fuse.search(search).flatMap((item) => item.item);
+    } else {
+      lastResults = fuse._docs;
+    }
+    return { lastResults, countAllItems, limitItems, currentPage };
   };
+
+  ///
 }
 module.exports = VouchersService;

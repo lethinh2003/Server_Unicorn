@@ -4,11 +4,13 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "npm run format:check",
+    "test": "npm run lint && npm run format:check",
     "start": "node server.js",
     "dev": "nodemon server.js development",
     "format:check": "prettier --check .",
-    "format:write": "prettier --write ."
+    "format:write": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "author": "Thinh Le",
   "license": "ISC",
@@ -60,7 +62,13 @@
     "npm": "8.1.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.23.7",
+    "@babel/eslint-parser": "^7.23.3",
     "@babel/preset-env": "^7.23.3",
-    "prettier": "^3.1.0"
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.1.1"
   }
 }

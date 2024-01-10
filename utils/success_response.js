@@ -28,8 +28,8 @@ class OkResponse extends SuccessResponse {
   }
 }
 class CreatedResponse extends SuccessResponse {
-  constructor({ statusCode = STATUSCODE.CREATED, message = STATUSREASON.CREATED, data }) {
-    super({ statusCode, message, data });
+  constructor({ statusCode = STATUSCODE.CREATED, message = STATUSREASON.CREATED, data, metadata }) {
+    super({ statusCode, message, data, metadata });
   }
 }
 module.exports = { OkResponse, CreatedResponse };

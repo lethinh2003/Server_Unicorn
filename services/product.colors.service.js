@@ -1,17 +1,15 @@
 "use strict";
-const ProductColors = require("../models/ProductColors");
+
+const ProductColorRepository = require("../models/repositories/product.color.repository");
 
 class ProductColorsService {
-  static findAllColors = async ({}) => {
-    const results = await ProductColors.find({}).lean();
-    return results;
-  };
-  static createColor = async ({ name, code }) => {
-    const result = await ProductColors.create({
-      product_color_name: name,
-      product_color_code: code,
+  static getAllColors = async ({}) => {
+    const results = await ProductColorRepository.findAll({
+      query: {
+        status: true,
+      },
     });
-    return result;
+    return results;
   };
 }
 module.exports = ProductColorsService;
