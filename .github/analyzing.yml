@@ -1,0 +1,26 @@
+name: Analyzing
+
+on: [push]
+
+jobs:
+  analyzing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create env file
+        run: echo "${{ secrets.CONFIG_ENV }}" > config.env
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.20.1"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm run test
+
