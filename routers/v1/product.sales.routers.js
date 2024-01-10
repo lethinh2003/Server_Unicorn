@@ -4,6 +4,6 @@ const authController = require("../../controllers/auth.controller");
 
 const router = express.Router();
 
-router.route("/").post(productSalesController.createSaleEvent);
+router.route("/").post(authController.protect, authController.reStrictTo(["admin"]), productSalesController.createSaleEvent);
 
 module.exports = router;

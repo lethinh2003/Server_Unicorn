@@ -24,7 +24,8 @@ class HistoryOnlinePaymentsService {
     this.data = data;
   }
   async createNewHistory() {
-    return await HistoryOnlinePayments.create(this);
+    const { _doc } = await HistoryOnlinePayments.create(this);
+    return _doc;
   }
 }
 class VNPayPaymentsService extends HistoryOnlinePaymentsService {

@@ -1,6 +1,7 @@
 const redis = require("redis");
 
 const ProductsService = require("./products.service");
+const { checkAvailableProduct, increseQuantityProduct } = require("../utils/product");
 
 const redisClient = redis.createClient({
   password: process.env.REDIS_CLOUD_PASSWORD,
@@ -33,17 +34,17 @@ class RedisService {
         NX: true,
       });
       if (result) {
-        const checkAvailableProduct = await ProductsService.checkAvailableProduct({
+        const isAvailableProduct = await checkAvailableProduct({
           productId,
           productQuantities,
           productSize,
           options,
         });
-        if (checkAvailableProduct) {
-          const decreaseProductQuantity = await ProductsService.decreseQuantityProduct({
+        if (isAvailableProduct) {
+          const decreaseProductQuantity = await increseQuantityProduct({
             productId,
             productSize,
-            productQuantities,
+            productQuantities: productQuantities * -1,
             options,
           });
 

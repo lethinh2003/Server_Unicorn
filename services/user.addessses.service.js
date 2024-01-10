@@ -1,115 +1,139 @@
 "use strict";
-const UserAddresses = require("../models/UserAddresses");
-
+const { USER_MESSAGES } = require("../configs/config.user.messages");
+const { NotFoundError, BadRequestError, UnauthorizedError } = require("../utils/app_error");
+const UserAddressesRepository = require("../models/repositories/user.address.repository");
 class UserAddressesService {
-  static findAllAddresses = async ({}) => {
-    const results = await UserAddresses.find({}).lean();
+  static getUserAddresses = async ({ itemsOfPage, page, userId }) => {
+    const limitItems = itemsOfPage * 1 || 10;
+    const currentPage = page * 1 || 1;
+    const skipItems = (currentPage - 1) * limitItems;
+    const results = await UserAddressesRepository.find({
+      query: {
+        user_id: userId,
+        status: true,
+      },
+      limit: limitItems,
+      skip: skipItems,
+      sort: "-default",
+    });
     return results;
   };
-  static findAddressesByUser = async ({ userId }) => {
-    const results = await UserAddresses.find({
-      user_id: userId,
-      status: true,
-    }).lean();
-
-    return results;
+  static createAddress = async ({ provine, district, ward, fullName, phoneNumber, detailAddress, isDefault = false, userId }) => {
+    if (!provine || !district || !ward || !fullName || !phoneNumber || !detailAddress) {
+      throw new UnauthorizedError(USER_MESSAGES.INPUT_MISSING);
+    }
+    let isAddressDefault = true;
+    // Check user has any address?
+    const checkUserAddresses = await UserAddressesRepository.findAll({
+      query: {
+        user_id: userId,
+        status: true,
+      },
+    });
+    if (checkUserAddresses.length > 0) {
+      isAddressDefault = false;
+    }
+    if (isDefault) {
+      // Remove current default address
+      await UserAddressesRepository.findOneAndUpdate({
+        query: {
+          default: true,
+        },
+        update: { default: false },
+      });
+      isAddressDefault = true;
+    }
+    const result = await UserAddressesRepository.createOne({
+      data: {
+        user_id: userId,
+        default: isAddressDefault,
+        provine,
+        district,
+        ward,
+        full_name: fullName,
+        phone_number: phoneNumber,
+        detail_address: detailAddress,
+      },
+    });
+    return result;
   };
-  static findAddressesPaginationByUser = async ({ userId, limitItems, skipItems }) => {
-    const results = await UserAddresses.find({
-      user_id: userId,
-      status: true,
-    })
-      .skip(skipItems)
-      .limit(limitItems)
-      .sort("-default")
-      .lean();
-
-    return results;
-  };
-  static findAddressesByUserAndId = async ({ userId, addressId, options = {} }) => {
-    const results = await UserAddresses.findOne(
-      {
+  static updateAddress = async ({ userId, addressId, provine, district, ward, fullName, phoneNumber, detailAddress, isDefault }) => {
+    if (!addressId || !provine || !district || !ward || !fullName || !phoneNumber || !detailAddress) {
+      throw new UnauthorizedError(USER_MESSAGES.INPUT_MISSING);
+    }
+    // Check address is exists?
+    const checkAddressExist = await UserAddressesRepository.findOne({
+      query: {
         user_id: userId,
         _id: addressId,
         status: true,
       },
-      null,
-      options
-    ).lean();
-
-    return results;
-  };
-  static findAddressesDefaultByUser = async ({ userId }) => {
-    const result = await UserAddresses.findOne({
-      user_id: userId,
-      default: true,
-    }).lean();
-
-    return result;
-  };
-  static deleteAddressesByUserAndId = async ({ userId, addressId }) => {
-    const result = await UserAddresses.findOneAndUpdate(
-      {
-        user_id: userId,
-        _id: addressId,
-      },
-      {
-        status: false,
-      }
-    ).lean();
-    return result;
-  };
-  static deleteAddressesByUser = async ({ userId, options = {} }) => {
-    const result = await UserAddresses.deleteMany({
-      user_id: userId,
-    }).session(options?.session || null);
-    return result;
-  };
-
-  static createAddress = async ({ isDefault = false, userId, provine, district, ward, fullName, phoneNumber, detailAddress }) => {
-    const result = await UserAddresses.create({
-      user_id: userId,
-      default: isDefault,
-      provine,
-      district,
-      ward,
-      full_name: fullName,
-      phone_number: phoneNumber,
-      detail_address: detailAddress,
     });
-
-    return result;
-  };
-  static updateAddress = async ({
-    addressId,
-    isDefault = false,
-    userId,
-    provine,
-    district,
-    ward,
-    fullName,
-    phoneNumber,
-    detailAddress,
-  }) => {
-    const result = await UserAddresses.findOneAndUpdate(
-      {
+    if (!checkAddressExist) {
+      throw new NotFoundError(USER_MESSAGES.ADDRESS_INVALID);
+    }
+    if (isDefault) {
+      // Remove current default address
+      await UserAddressesRepository.findOneAndUpdate({
+        query: {
+          default: true,
+        },
+        update: { default: false },
+      });
+    }
+    // Update address
+    await UserAddressesRepository.findOneAndUpdate({
+      query: {
         user_id: userId,
         _id: addressId,
       },
-      { default: isDefault, provine, district, ward, full_name: fullName, phone_number: phoneNumber, detail_address: detailAddress }
-    );
-
-    return result;
-  };
-  static updateDefaultAddress = async ({ oldDefault = true, newDefault = false }) => {
-    const result = await UserAddresses.findOneAndUpdate(
-      {
-        default: oldDefault,
+      update: {
+        default: isDefault,
+        provine,
+        district,
+        ward,
+        full_name: fullName,
+        phone_number: phoneNumber,
+        detail_address: detailAddress,
       },
-      { default: newDefault }
-    );
-
+    });
+  };
+  static deleteAddress = async ({ addressId, userId }) => {
+    if (!addressId) {
+      throw new UnauthorizedError(USER_MESSAGES.INPUT_MISSING);
+    }
+    // Check address is exists?
+    const checkAddressExist = await UserAddressesRepository.findOne({
+      query: {
+        user_id: userId,
+        _id: addressId,
+      },
+    });
+    if (!checkAddressExist) {
+      throw new NotFoundError(USER_MESSAGES.ADDRESS_INVALID);
+    }
+    // Delete address
+    await UserAddressesRepository.findOneAndDelete({
+      query: {
+        user_id: userId,
+        _id: addressId,
+      },
+    });
+  };
+  static getDetailUserAddresses = async ({ addressId, userId }) => {
+    const result = await UserAddressesRepository.findOne({
+      query: {
+        user_id: userId,
+        _id: addressId,
+        status: true,
+      },
+    });
+    if (!result) {
+      throw new NotFoundError(USER_MESSAGES.ADDRESS_INVALID);
+    }
     return result;
   };
+
+  ///
 }
 module.exports = UserAddressesService;

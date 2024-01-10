@@ -1,9 +1,9 @@
-function sortObject(obj) {
+function sortObject(obj = {}) {
   let sorted = {};
   let str = [];
   let key;
   for (key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       str.push(encodeURIComponent(key));
     }
   }

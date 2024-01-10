@@ -1,69 +1,107 @@
 "use strict";
+const { CART_MESSAGES } = require("../configs/config.cart.messages");
+const { USER_MESSAGES } = require("../configs/config.user.messages");
+const { VOUCHER_MESSAGES } = require("../configs/config.voucher.messages");
 const Carts = require("../models/Carts");
+const CartItemRepository = require("../models/repositories/cart.item.repository");
+const CartRepository = require("../models/repositories/cart.repository");
+const VoucherRepository = require("../models/repositories/voucher.repository");
+const { UnauthorizedError, BadRequestError } = require("../utils/app_error");
 
 class CartsService {
-  static findAll = async ({ userId, limitItems, skipItems }) => {
-    const results = await Carts.find({}).skip(skipItems).limit(limitItems).lean();
-    return results;
-  };
-  static findOneByUser = async ({ userId, populate, options = {} }) => {
-    const result = await Carts.findOne(
-      {
+  static getUserCart = async ({ userId }) => {
+    let cart = await CartRepository.findOne({
+      query: {
         user: userId,
       },
-      null,
-      options
-    )
-      .populate(populate)
-      .lean();
-    return result;
-  };
-
-  static createCart = async ({ userId }) => {
-    const { _doc } = await Carts.create({
-      user: userId,
+      populate: {
+        path: "voucher",
+      },
     });
-    return _doc;
-  };
-  static updateCartVoucher = async ({ userId, voucherId }) => {
-    const result = await Carts.findOneAndUpdate(
-      {
-        user: userId,
-      },
-      {
-        voucher: voucherId,
-      }
-    );
-    return result;
-  };
-  static deleteByUserId = async ({ userId, options = {} }) => {
-    const data = await Carts.findOneAndDelete(
-      {
-        user: userId,
-      },
-      options
-    );
-    return data;
-  };
-  static updateProduct = async ({ cartId, product }) => {
-    const { product: productId, size, quantities, price } = product;
-    const result = await Carts.findOneAndUpdate(
-      {
-        _id: cartId,
-      },
-      {
-        $push: {
-          products: {
-            product: productId,
-            size,
-            quantities,
-          },
+    // if cart doesn't exist -> create new cart
+    if (!cart) {
+      const { _doc } = await CartRepository.createOne({
+        data: {
+          user: userId,
         },
-        $inc: { totalAmount: price },
-      }
-    );
-
-    return result;
+      });
+      cart = _doc;
+    }
+    return cart;
   };
+  static checkVoucher = async ({ userId, voucherId }) => {
+    if (!voucherId) {
+      throw new UnauthorizedError(USER_MESSAGES.INPUT_MISSING);
+    }
+    // Check user has a cart?
+    const checkCartIsExists = await CartRepository.findOne({
+      query: {
+        status: true,
+        user: userId,
+      },
+      populate: {
+        path: "voucher",
+      },
+    });
+    if (!checkCartIsExists) {
+      throw new BadRequestError(CART_MESSAGES.CART_IS_NOT_EXISTS);
+    }
+    // Check voucher is exist
+    const checkVoucherIsExists = await VoucherRepository.findOne({
+      query: {
+        user: userId,
+        _id: voucherId,
+        status: true,
+      },
+    });
+    if (!checkVoucherIsExists) {
+      throw new BadRequestError(VOUCHER_MESSAGES.CODE_IS_NOT_EXISTS);
+    }
+
+    const getCartItems = await CartItemRepository.findAll({
+      query: {
+        cart_id: checkCartIsExists._id,
+        status: true,
+      },
+      populate: [
+        {
+          path: "data.product",
+          populate: "product_color product_sale_event",
+        },
+        {
+          path: "data.size",
+        },
+      ],
+    });
+
+    const getTotalAmountCartItems = () => {
+      let totalPrice = 0;
+      getCartItems.forEach((item) => {
+        totalPrice += item.data.product.product_original_price * item.data.quantities;
+      });
+      return totalPrice;
+    };
+    // Check quantity cart item is ok
+    if (getCartItems.length < checkVoucherIsExists.min_order_quantity) {
+      throw new BadRequestError(CART_MESSAGES.MIN_ORDER_QUANTITY_VOUCHER_INVALID);
+    }
+    // Check amount cart item is ok
+    if (getTotalAmountCartItems() < checkVoucherIsExists.min_order_amount) {
+      throw new BadRequestError(CART_MESSAGES.MIN_ORDER_AMOUNT_VOUCHER_INVALID);
+    }
+
+    // Update cart
+
+    await CartRepository.findOneAndUpdate({
+      query: {
+        user: userId,
+      },
+      update: {
+        voucher: voucherId,
+      },
+    });
+  };
+
+  ////
 }
 module.exports = CartsService;

@@ -1,6 +1,5 @@
 const express = require("express");
 const productsController = require("../../controllers/products.controller");
-const authController = require("../../controllers/auth.controller");
 const productReviewsRouters = require("./product.reviews.routers");
 
 const router = express.Router();
@@ -202,7 +201,6 @@ router.route("/").get(productsController.getAllParentProducts);
  *       - bearerAuth: []
  *       - clientIdAuth: []
  */
-router.route("/").post(authController.protect, authController.reStrictTo("admin"), productsController.createProduct);
 
 router.route("/latest-collection").get(productsController.getLatestProducts);
 router.route("/sale-collection").get(productsController.getSaleProducts);
