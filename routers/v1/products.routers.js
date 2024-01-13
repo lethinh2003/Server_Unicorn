@@ -365,6 +365,10 @@ router.route("/sale-collection").get(productsController.getSaleProducts);
  *                     results: 1
  */
 router.route("/suggesting").get(productsController.getSuggestProducts);
+
+// Product review router
+router.use("/reviews", productReviewsRouters);
+
 /**
  * @swagger
  * /products/{productId}:
@@ -719,8 +723,5 @@ router.route("/:productId").get(productsController.getDetailProduct);
  *                     results: 0
  */
 router.route("/").get(productsController.getAllParentProducts);
-
-// Product review router
-router.use("/reviews", productReviewsRouters);
 
 module.exports = router;
