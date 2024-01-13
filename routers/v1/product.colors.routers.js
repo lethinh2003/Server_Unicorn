@@ -7,7 +7,7 @@ const router = express.Router();
  * /product-colors:
  *   get:
  *     tags:
- *       - Product Color
+ *       - Products
  *     summary: Lấy thông tin tất cả màu của sản phẩm
  *     responses:
  *       '200':
@@ -26,8 +26,37 @@ const router = express.Router();
  *                   type: string
  *                   example: "Success"
  *                 data:
- *                   type: object
- *                   example: {}
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       product_color_name:
+ *                         type: string
+ *                       product_color_code:
+ *                         type: string
+ *                       createdAt:
+ *                         type: string
+ *                       updatedAt:
+ *                         type: string
+ *                       status:
+ *                         type: boolean
+ *                         description: Trạng thái của size sản phẩm
+ *                     example:
+ *                       - _id: "650eb01246193f4ddcf7862c"
+ *                         product_color_name: "Trắng"
+ *                         product_color_code: "#fff"
+ *                         status: true
+ *                         createdAt: "2023-09-23T09:29:54.327Z"
+ *                         updatedAt: "2023-09-23T09:29:54.327Z"
+ *                       - _id: "650eb0d6b30a24284036ead1"
+ *                         product_color_name: "Xám"
+ *                         product_color_code: "#dedede"
+ *                         status: true
+ *                         createdAt: "2023-09-23T09:29:54.327Z"
+ *                         updatedAt: "2023-09-23T09:29:54.327Z"
+
  *                 metadata:
  *                   type: object
  *                   example: {}

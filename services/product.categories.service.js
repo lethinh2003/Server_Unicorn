@@ -40,6 +40,7 @@ class ProductCategoriesService {
           },
         ],
       },
+      select: "-__v",
     });
     const results = [];
     for (const itemParentCategory of listParentCategories) {
@@ -62,7 +63,7 @@ class ProductCategoriesService {
           product_category_gender: PRODUCT_GENDERS.UNISEX,
         };
       }
-      const listChildCategories = await ProductCategoriesRepository.findAll({ query });
+      const listChildCategories = await ProductCategoriesRepository.findAll({ query, select: "-__v" });
 
       results.push({ ...itemParentCategory, child_categories: listChildCategories });
     }

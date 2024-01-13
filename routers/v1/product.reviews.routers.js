@@ -4,108 +4,13 @@ const authController = require("../../controllers/auth.controller");
 const { uploadCloud: fileUploader } = require("../../configs/cloudinary.config");
 
 const router = express.Router();
-/**
- * @swagger
- * /products/reviews:
- *   get:
- *     tags:
- *       - Product Reviews
- *     summary: Lấy danh sách các reviews của sản phẩm
- *     parameters:
- *       - in: query
- *         name: productId
- *         schema:
- *           type: string
- *         required: true
- *         default: "65118ec85700f56d346034e7"
- *         description: "ID của product"
- *       - in: query
- *         name: sort
- *         schema:
- *           type: string
- *         required: true
- *         default: "desc"
- *         description: "Loại sort theo thời gian tạo: asc || desc"
- *       - in: query
- *         name: rating
- *         schema:
- *           type: string
- *         required: true
- *         default: "all"
- *         description: "Loại rating:  1 || 2 || 3 || 4 || 5 || all "
- *       - in: query
- *         name: type
- *         schema:
- *           type: string
- *         required: true
- *         default: "all"
- *         description: "Loại reviews: all || image"
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *         required: true
- *         default: 1
- *       - in: query
- *         name: itemsOfPage
- *         schema:
- *           type: integer
- *         required: true
- *         default: 10
- *     responses:
- *       '200':
- *         description: Thành công
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 statusCode:
- *                   type: integer
- *                   example: 200
- *                 status:
- *                   type: string
- *                   example: "Success"
- *                 message:
- *                   type: string
- *                   example: "Success"
- *                 data:
- *                   type: array
- *                   example: []
- *                 metadata:
- *                   type: object
- *                   properties:
- *                     page:
- *                       type: integer
- *                     limit:
- *                       type: integer
- *                     sort:
- *                       type: string
- *                     rating:
- *                       type: string
- *                     type:
- *                       type: string
- *                     productId:
- *                       type: string
- *                     results:
- *                       type: integer
- *                   example:
- *                     page: 1
- *                     limit: 10
- *                     sort: "desc"
- *                     rating: "all"
- *                     type: "all"
- *                     productId: "65118ec85700f56d346034e7"
- *                     results: 0
- */
-router.route("/").get(productReviewsController.getReviewsByProduct);
 
 /**
  * @swagger
  * /products/reviews/rating-overview:
  *   get:
  *     tags:
- *       - Product Reviews
+ *       - Products
  *     summary: Lấy thông số tổng quan các reviews của sản phẩm
  *     parameters:
  *       - in: query
@@ -168,21 +73,230 @@ router.route("/").get(productReviewsController.getReviewsByProduct);
  *                   properties:
  *                     productId:
  *                       type: string
- *                       example: "652c954e8b70bf0b84037396"
- *                     results:
- *                       type: integer
- *                       example: 0
+ *                       example: "65118ec85700f56d346034e7"
  */
 router.route("/rating-overview").get(productReviewsController.getRatingOverviewByProduct);
 
+/**
+ * @swagger
+ * /products/reviews/upload-images:
+ *   post:
+ *     tags:
+ *       - Products
+ *     summary: Upload ảnh review
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *     responses:
+ *       '200':
+ *         description: Thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 200
+ *                 status:
+ *                   type: string
+ *                   example: "Success"
+ *                 message:
+ *                   type: string
+ *                   example: "Success"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       fileName:
+ *                         type: string
+ *                         example: "peakpx (1).jpg"
+ *                       fileUrl:
+ *                         type: string
+ *                         example: "https://res.cloudinary.com/dkjjr9xra/image/upload/v1705030884/unicorn/peakpx_%281%29_6223831.jpg"
+ *                       typeFile:
+ *                         type: string
+ *                         example: "image/jpeg"
+ *                 metadata:
+ *                   type: object
+ *                   properties: {}
+ *     security:
+ *       - bearerAuth: []
+ *       - clientIdAuth: []
+ */
 router.route("/upload-images").post(authController.protect, fileUploader.array("file"), productReviewsController.uploadImages);
+
+/**
+ * @swagger
+ * /products/reviews:
+ *   get:
+ *     tags:
+ *       - Products
+ *     summary: Lấy danh sách các reviews từ một sản phẩm
+ *     parameters:
+ *       - in: query
+ *         name: productId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         default: "65118ec85700f56d346034e7"
+ *         description: "ID của product"
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *         required: true
+ *         default: "desc"
+ *         description: "Loại sort theo thời gian tạo: asc (Cũ nhất) || desc (Mới nhất)"
+ *       - in: query
+ *         name: rating
+ *         schema:
+ *           type: string
+ *         required: true
+ *         default: "all"
+ *         description: "Loại rating (số sao):  1 || 2 || 3 || 4 || 5 || all "
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *         required: true
+ *         default: "all"
+ *         description: "Loại reviews: all (tất cả) || image (chỉ có ảnh)"
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         default: 1
+ *       - in: query
+ *         name: itemsOfPage
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         default: 10
+ *     responses:
+ *       '200':
+ *         description: Thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 200
+ *                 status:
+ *                   type: string
+ *                   example: "Success"
+ *                 message:
+ *                   type: string
+ *                   example: "Success"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: "651296c7524d80107c10a0f0"
+ *                       review_images:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                           example: "https://image.uniqlo.com/UQ/ST3/AsianCommon/imagesgoods/455365/sub/goods_455365_sub14.jpg?width=750"
+ *                       status:
+ *                         type: boolean
+ *                         example: true
+ *                       product_id:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                             example: "65118dbdeb6baf6ff0fa1756"
+ *                           product_name:
+ *                             type: string
+ *                             example: "Áo Thun Cổ Tròn Ngắn Tay"
+ *                           product_color:
+ *                             type: object
+ *                             properties:
+ *                               product_color_name:
+ *                                 type: string
+ *                                 example: "Trắng"
+ *                               product_color_code:
+ *                                 type: string
+ *                                 example: "#fff"
+ *                       review_comment:
+ *                         type: string
+ *                         example: "Sản phẩm tuyệt vời"
+ *                       createdAt:
+ *                         type: string
+ *                         example: "2023-09-26T08:31:03.984Z"
+ *                       updatedAt:
+ *                         type: string
+ *                         example: "2023-09-26T08:31:03.984Z"
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                             example: "650d3f4f421ed24dc41454bb"
+ *                           name:
+ *                             type: string
+ *                             example: "LeThinh"
+ *                       product_size:
+ *                         type: object
+ *                         properties:
+ *                           product_size_name:
+ *                             type: string
+ *                             example: "S"
+ *                       review_star:
+ *                         type: integer
+ *                         example: 5
+ *                 metadata:
+ *                   type: object
+ *                   properties:
+ *                     productId:
+ *                       type: string
+ *                       example: "65118f075700f56d346034ef"
+ *                     page:
+ *                       type: integer
+ *                       example: 1
+ *                     itemsOfPage:
+ *                       type: string
+ *                       example: "1"
+ *                     sort:
+ *                       type: string
+ *                       example: "asc"
+ *                     rating:
+ *                       type: string
+ *                       example: "all"
+ *                     type:
+ *                       type: string
+ *                       example: "all"
+ *                     limit:
+ *                       type: integer
+ *                       example: 1
+ *                     results:
+ *                       type: integer
+ *                       example: 1
+ */
+router.route("/").get(productReviewsController.getReviewsByProduct);
 
 /**
  * @swagger
  * /products/reviews:
  *   post:
  *     tags:
- *       - Product Reviews
+ *       - Products
  *     summary: Tạo mới review
  *     requestBody:
  *       required: true
@@ -191,21 +305,25 @@ router.route("/upload-images").post(authController.protect, fileUploader.array("
  *           schema:
  *             type: object
  *             properties:
- *               parentProductId:
- *                 type: string
- *                 example: "65118dbdeb6baf6ff0fa1756"
  *               productId:
  *                 type: string
- *                 example: "65118f075700f56d346034ef"
- *               reviewStart:
+ *                 required: true
+ *                 example: "65118dbdeb6baf6ff0fa1756"
+ *               productSize:
  *                 type: string
- *                 example: "5"
+ *                 required: true
+ *                 example: "650ea8a4828567aff85ca693"
+ *               reviewStart:
+ *                 type: number
+ *                 required: true
+ *                 example: 5
  *               reviewComment:
  *                 type: string
+ *                 required: true
  *                 example: "Sản phẩm ổn trong tầm giá"
  *               reviewImages:
  *                 type: array
- *                 example: []
+ *                 example: ["https://res.cloudinary.com/dkjjr9xra/image/upload/v1705030884/unicorn/peakpx_%281%29_6223831.jpg"]
  *     responses:
  *       '201':
  *         description: Thành công
@@ -222,13 +340,68 @@ router.route("/upload-images").post(authController.protect, fileUploader.array("
  *                   example: "Created"
  *                 message:
  *                   type: string
- *                   example: "Created"
+ *                   example: "Tạo đánh giá thành công"
  *                 data:
  *                   type: object
- *                   example: {}
+ *                   properties:
+ *                     review_star:
+ *                       type: integer
+ *                       example: 5
+ *                     review_images:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                         example: "https://res.cloudinary.com/dkjjr9xra/image/upload/v1705030884/unicorn/peakpx_%281%29_6223831.jpg"
+ *                     status:
+ *                       type: boolean
+ *                       example: true
+ *                     _id:
+ *                       type: string
+ *                       example: "65a0b4e527894d51101416fe"
+ *                     product_id:
+ *                       type: string
+ *                       example: "65118dbdeb6baf6ff0fa1756"
+ *                     review_comment:
+ *                       type: string
+ *                       example: "Good\nGood"
+ *                     product_size:
+ *                       type: string
+ *                       example: "650ea8a4828567aff85ca693"
+ *                     user:
+ *                       type: string
+ *                       example: "650d3f4f421ed24dc41454bb"
+ *                     createdAt:
+ *                       type: string
+ *                       example: "2024-01-12T03:41:25.023Z"
+ *                     updatedAt:
+ *                       type: string
+ *                       example: "2024-01-12T03:41:25.023Z"
+ *                     __v:
+ *                       type: integer
+ *                       example: 0
  *                 metadata:
  *                   type: object
- *                   example: {}
+ *                   properties:
+ *                     productId:
+ *                       type: string
+ *                       example: "65118dbdeb6baf6ff0fa1756"
+ *                     reviewStart:
+ *                       type: integer
+ *                       example: 5
+ *                     reviewComment:
+ *                       type: string
+ *                       example: "Sản phẩm ổn trong tầm giá"
+ *                     reviewImages:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                         example: "https://res.cloudinary.com/dkjjr9xra/image/upload/v1705030884/unicorn/peakpx_%281%29_6223831.jpg"
+ *                     productSize:
+ *                       type: string
+ *                       example: "650ea8a4828567aff85ca693"
+ *                     userId:
+ *                       type: string
+ *                       example: "650d3f4f421ed24dc41454bb"
  *     security:
  *       - bearerAuth: []
  *       - clientIdAuth: []

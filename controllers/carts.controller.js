@@ -28,6 +28,7 @@ class CartsController {
     });
 
     return new OkResponse({
+      data: true,
       metadata: {
         ...req.body,
         userId,

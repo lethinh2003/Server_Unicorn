@@ -8,8 +8,8 @@ const router = express.Router();
  * /users/addresses:
  *   get:
  *     tags:
- *       - User Addresses
- *     summary: Lấy danh sách địa chỉ user
+ *       - Users
+ *     summary: Lấy danh sách địa chỉ giao hàng user
  *     parameters:
  *       - in: query
  *         name: page
@@ -71,8 +71,6 @@ const router = express.Router();
  *                       updatedAt:
  *                         type: string
  *                         format: date-time
- *                       __v:
- *                         type: integer
  *                   example:
  *                     - _id: "65150cd24dc0a768743d975d"
  *                       default: true
@@ -86,20 +84,6 @@ const router = express.Router();
  *                       detail_address: "130/20"
  *                       createdAt: "2023-09-28T05:19:14.666Z"
  *                       updatedAt: "2023-09-28T05:19:14.666Z"
- *                       __v: 0
- *                     - _id: "652c7b6de1c8890a9ca4338a"
- *                       default: false
- *                       status: true
- *                       user_id: "650d3f4f421ed24dc41454bb"
- *                       provine: "TPHCM"
- *                       district: "Quận 1"
- *                       ward: "Phường 12"
- *                       full_name: "Lê Văn Thịnh"
- *                       phone_number: "0369084341"
- *                       detail_address: "130/20"
- *                       createdAt: "2023-10-15T23:53:17.235Z"
- *                       updatedAt: "2023-10-15T23:53:17.235Z"
- *                       __v: 0
  *                 metadata:
  *                   type: object
  *                   properties:
@@ -115,7 +99,7 @@ const router = express.Router();
  *                     page: 1
  *                     limit: 10
  *                     userId: "650d3f4f421ed24dc41454bb"
- *                     results: 2
+ *                     results: 1
  *     security:
  *       - bearerAuth: []
  *       - clientIdAuth: []
@@ -128,7 +112,7 @@ router.route("/").get(authController.protect, userAddressesController.getUserAdd
  * /users/addresses:
  *   post:
  *     tags:
- *       - User Addresses
+ *       - Users
  *     summary: Tạo mới địa chỉ user
  *     requestBody:
  *       required: true
@@ -160,6 +144,7 @@ router.route("/").get(authController.protect, userAddressesController.getUserAdd
  *                 example: true
  *     responses:
  *       '201':
+ *         description: Tạo mới thành công
  *         content:
  *           application/json:
  *             schema:
@@ -176,8 +161,46 @@ router.route("/").get(authController.protect, userAddressesController.getUserAdd
  *                   example: "Thêm địa chỉ thành công"
  *                 data:
  *                   type: object
- *                   example: null
-
+ *                   properties:
+ *                     default:
+ *                       type: boolean
+ *                       example: true
+ *                     status:
+ *                       type: boolean
+ *                       example: true
+ *                     _id:
+ *                       type: string
+ *                       example: "659f5aaa11a2b243f8dc0d90"
+ *                     user_id:
+ *                       type: string
+ *                       example: "650d3f4f421ed24dc41454bb"
+ *                     provine:
+ *                       type: string
+ *                       example: "TPHCM"
+ *                     district:
+ *                       type: string
+ *                       example: "Quận 12"
+ *                     ward:
+ *                       type: string
+ *                       example: "Phường 12"
+ *                     full_name:
+ *                       type: string
+ *                       example: "Lê Văn Thịnh"
+ *                     phone_number:
+ *                       type: string
+ *                       example: "0369084341"
+ *                     detail_address:
+ *                       type: string
+ *                       example: "130/20"
+ *                     createdAt:
+ *                       type: string
+ *                       example: "2024-01-11T03:04:10.226Z"
+ *                     updatedAt:
+ *                       type: string
+ *                       example: "2024-01-11T03:04:10.226Z"
+ *                     __v:
+ *                       type: integer
+ *                       example: 0
  *                 metadata:
  *                   type: object
  *                   example: {}
@@ -192,7 +215,7 @@ router.route("/").post(authController.protect, userAddressesController.createAdd
  * /users/addresses/update:
  *   post:
  *     tags:
- *       - User Addresses
+ *       - Users
  *     summary: Cập nhật địa chỉ user
  *     requestBody:
  *       required: true
@@ -259,7 +282,7 @@ router.route("/update").post(authController.protect, userAddressesController.upd
  * /users/addresses/delete:
  *   post:
  *     tags:
- *       - User Addresses
+ *       - Users
  *     summary: Xóa địa chỉ user
  *     requestBody:
  *       required: true
@@ -305,7 +328,7 @@ router.route("/delete").post(authController.protect, userAddressesController.del
  * /users/addresses/{addressId}:
  *   get:
  *     tags:
- *       - User Addresses
+ *       - Users
  *     summary: Lấy thông tin chi tiết địa chỉ user
  *     parameters:
  *       - in: path
@@ -359,8 +382,6 @@ router.route("/delete").post(authController.protect, userAddressesController.del
  *                     updatedAt:
  *                       type: string
  *                       format: date-time
- *                     __v:
- *                       type: integer
  *                   example:
  *                     _id: "65332d646c88e0040831e990"
  *                     default: false
@@ -374,7 +395,6 @@ router.route("/delete").post(authController.protect, userAddressesController.del
  *                     detail_address: "130/20"
  *                     createdAt: "2023-10-21T01:46:12.201Z"
  *                     updatedAt: "2023-10-26T13:59:21.563Z"
- *                     __v: 0
  *                 metadata:
  *                   type: object
  *                   properties:

@@ -58,7 +58,7 @@ const options = {
       description: "API dành cho Unicorn - Trang web bán quần áo thời trang",
       contact: {
         name: "Le Thinh",
-        url: "https://lethinh-blog.site",
+        url: "https://blog.lethinh.id.vn",
       },
     },
     servers: [

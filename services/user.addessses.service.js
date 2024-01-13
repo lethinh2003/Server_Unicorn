@@ -12,6 +12,7 @@ class UserAddressesService {
         user_id: userId,
         status: true,
       },
+      select: "-__v",
       limit: limitItems,
       skip: skipItems,
       sort: "-default",
@@ -127,6 +128,7 @@ class UserAddressesService {
         _id: addressId,
         status: true,
       },
+      select: "-__v",
     });
     if (!result) {
       throw new NotFoundError(USER_MESSAGES.ADDRESS_INVALID);

@@ -12,7 +12,7 @@ class ProductReviewsController {
     }).send(res);
   });
   getReviewsByProduct = catchAsync(async (req, res, next) => {
-    const { productId, page, itemsOfPage, sort = "desc", rating = "all", type = "all" } = req.query;
+    const { productId, page = 1, itemsOfPage = 10, sort = "desc", rating = "all", type = "all" } = req.query;
     // get all reviews
     const results = await ProductReviewsService.getReviewsByProduct({
       productId,

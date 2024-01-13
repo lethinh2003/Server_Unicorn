@@ -17,6 +17,7 @@ class NotificationsService {
       skip: skipItems,
       limit: limitItems,
       sort: "-createdAt",
+      select: "-__v",
     });
     return { results, limitItems, currentPage };
   };

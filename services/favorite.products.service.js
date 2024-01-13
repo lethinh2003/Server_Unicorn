@@ -17,11 +17,20 @@ class FavoriteProductsService {
       skip: skipItems,
       limit: limitItems,
       sort: "-createdAt",
+      select: "-__v",
       populate: {
         path: "product_id",
-        populate: {
-          path: "product_color product_sale_event",
-        },
+        select: "-__v -product_categories -product_sizes -product_description",
+        populate: [
+          {
+            path: "product_color",
+            select: "-_id -status -createdAt -updatedAt -__v",
+          },
+          {
+            path: "product_sale_event",
+            select: "-_id -status -createdAt -updatedAt -__v",
+          },
+        ],
       },
     });
 
@@ -102,8 +111,10 @@ class FavoriteProductsService {
     }
     // Check favorite product is exist
     const findFavoriteProduct = await FavoriteProductRepository.findOne({
-      user: userId,
-      product_id: productId,
+      query: {
+        user: userId,
+        product_id: productId,
+      },
     });
     if (!findFavoriteProduct) {
       throw new BadRequestError(PRODUCT_MESSAGES.FAVORITE_IS_NOT_EXISTS);
@@ -135,8 +146,10 @@ class FavoriteProductsService {
 
     // Check favorite product is exist
     const findFavoriteProduct = await FavoriteProductRepository.findOne({
-      user: userId,
-      product_id: productId,
+      query: {
+        user: userId,
+        product_id: productId,
+      },
     });
 
     return !!findFavoriteProduct;

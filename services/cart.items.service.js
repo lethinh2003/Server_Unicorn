@@ -21,10 +21,21 @@ class CartItemsService {
         status: true,
         cart_id: cart._id,
       },
+      select: "-__v -totalAmount",
       populate: [
         {
           path: "data.product",
-          populate: "product_color product_sale_event",
+          select: "-product_categories -__v -product_description",
+          populate: [
+            {
+              path: "product_color",
+              select: "-_id -status -createdAt -updatedAt -__v",
+            },
+            {
+              path: "product_sale_event",
+              select: "-_id -status -createdAt -updatedAt -__v",
+            },
+          ],
         },
         { path: "data.size" },
       ],

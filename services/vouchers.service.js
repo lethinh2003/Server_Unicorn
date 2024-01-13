@@ -20,6 +20,7 @@ class VouchersService {
       limit: limitItems,
       skip: skipItems,
       sort: "expired_date",
+      select: "-__v",
     });
     const countAllItems = await VoucherRepository.countDocuments({
       query: {

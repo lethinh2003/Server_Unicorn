@@ -7,7 +7,7 @@ const router = express.Router();
  * /product-sizes:
  *   get:
  *     tags:
- *       - Product Size
+ *       - Products
  *     summary: Lấy thông tin tất cả size của sản phẩm
  *     responses:
  *       '200':
@@ -26,8 +26,30 @@ const router = express.Router();
  *                   type: string
  *                   example: "Success"
  *                 data:
- *                   type: object
- *                   example: {}
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: "650ea87a828567aff85ca690"
+ *                         description: ID của size sản phẩm
+ *                       product_size_name:
+ *                         type: string
+ *                         example: "S"
+ *                         description: Tên của size sản phẩm
+ *                       status:
+ *                         type: boolean
+ *                         example: true
+ *                         description: Trạng thái của size sản phẩm
+ *                     example:
+ *                       - _id: "650ea87a828567aff85ca690"
+ *                         product_size_name: "S"
+ *                         status: true
+ *                       - _id: "650ea88a828567aff85ca691"
+ *                         product_size_name: "M"
+ *                         status: true
+ *                   description: Danh sách các size của sản phẩm
  *                 metadata:
  *                   type: object
  *                   example: {}

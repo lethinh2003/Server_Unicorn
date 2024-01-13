@@ -31,19 +31,22 @@ const router = express.Router();
  *                 data:
  *                   type: object
  *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: "650d3f4f421ed24dc41454bb"
  *                     email:
  *                       type: string
  *                       example: "muradvn2003@gmail.com"
  *                     name:
  *                       type: string
  *                       example: "Le Thinh"
+ *                     gender:
+ *                       type: string
+ *                       example: "male"
  *                     birthday:
  *                       type: string
  *                       format: date-time
  *                       example: "2003-10-22T00:00:00.000Z"
- *                     gender:
- *                       type: string
- *                       example: "male"
  *                     phone_number:
  *                       type: string
  *                       example: "0369084341"
@@ -63,8 +66,8 @@ router.route("/").get(authController.protect, usersController.getInformationUser
  *   post:
  *     tags:
  *       - Users
- *     summary: Tạo mới user
- *     description: Tạo mới user
+ *     summary: Đăng ký user
+ *     description: Đăng ký user
  *     requestBody:
  *       required: true
  *       content:
@@ -162,7 +165,13 @@ router.route("/").post(usersController.createUser);
  *                   example: "Cập nhật thông tin thành công"
  *                 data:
  *                   type: object
- *                   example: null
+ *                   example:
+ *                     gender: "male"
+ *                     _id: "650d3f4f421ed24dc41454bb"
+ *                     email: "muradvn2003@gmail.com"
+ *                     name: "LeThinh"
+ *                     birthday: "2003-10-22T00:00:00.000Z"
+ *                     phone_number: "0369084341"
  *                 metadata:
  *                   type: object
  *                   example: {}

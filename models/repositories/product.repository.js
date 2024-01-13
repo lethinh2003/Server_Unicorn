@@ -11,8 +11,8 @@ class ProductRepository {
     const result = await Products.countDocuments(query);
     return result;
   };
-  static findAll = async ({ query = {}, select = "", populate }) => {
-    const result = await Products.find(query).select(select).populate(populate).lean();
+  static findAll = async ({ query = {}, options = {}, select = "", populate, sort }) => {
+    const result = await Products.find(query, options).select(select).populate(populate).sort(sort).lean();
     return result;
   };
   static findOne = async ({ query = {}, select = "", populate }) => {

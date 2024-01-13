@@ -22,7 +22,7 @@ class OrdersController {
   });
 
   getListOrders = catchAsync(async (req, res, next) => {
-    const { itemsOfPage, page, type = ORDER_QUERY_TYPE.ALL } = req.query;
+    const { itemsOfPage = 10, page = 1, type = ORDER_QUERY_TYPE.ALL } = req.query;
     const { _id: userId } = req.user;
     const results = await OrdersService.getListOrders({
       itemsOfPage,

@@ -4,10 +4,11 @@ const { PRODUCT_MESSAGES } = require("../configs/config.product.messages");
 const ProductRepository = require("../models/repositories/product.repository");
 const ProductReviewRepository = require("../models/repositories/product.review.repository");
 const _ = require("lodash");
+
 class ProductReviewsService {
-  static getReviewsByProduct = async ({ itemsOfPage, page, productId, rating, type, sort }) => {
-    const limitItems = itemsOfPage * 1 || 10;
-    const currentPage = page * 1 || 1;
+  static getReviewsByProduct = async ({ itemsOfPage = 10, page = 1, productId, sort = "desc", rating = "all", type = "all" }) => {
+    const limitItems = itemsOfPage * 1;
+    const currentPage = page * 1;
     const skipItems = (currentPage - 1) * limitItems;
     if (!productId) {
       throw new UnauthorizedError(PRODUCT_MESSAGES.INPUT_MISSING);
@@ -25,78 +26,54 @@ class ProductReviewsService {
 
     // get all reviews
 
-    let results = [];
     const parentProductId = findProduct.parent_product_id;
     let query = {
       status: true,
       review_star: rating === "all" ? { $gt: 0 } : { $eq: rating },
       $expr: type === "all" ? { $gte: [{ $size: "$review_images" }, 0] } : { $gt: [{ $size: "$review_images" }, 0] },
     };
-
     // Is parent product
     if (!parentProductId) {
-      results = await ProductReviewRepository.find({
-        query: {
-          ...query,
-          $or: [{ product_id: productId }, { parent_product_id: productId }],
-        },
-        limit: limitItems,
-        skip: skipItems,
-        sort: {
-          createdAt: sort,
-        },
-        populate: [
-          {
-            path: "product_size",
-          },
-          {
-            path: "user",
-            select: "name",
-          },
-          {
-            path: "product_id",
-            populate: {
-              path: "product_color",
-            },
-          },
-          {
-            path: "parent_product_id",
-          },
-        ],
-      });
+      query = { ...query, $or: [{ product_id: productId }, { parent_product_id: productId }] };
     } else {
-      // is child product
-
-      results = await ProductReviewRepository.find({
-        query: {
-          ...query,
-          $or: [{ product_id: productId }, { product_id: parentProductId }, { parent_product_id: parentProductId }],
-        },
-        limit: limitItems,
-        skip: skipItems,
-        sort: {
-          createdAt: sort,
-        },
-        populate: [
-          {
-            path: "product_size",
-          },
-          {
-            path: "user",
-            select: "name",
-          },
-          {
-            path: "product_id",
-            populate: {
-              path: "product_color",
-            },
-          },
-          {
-            path: "parent_product_id",
-          },
-        ],
-      });
+      // Is child product
+      query = { ...query, $or: [{ product_id: productId }, { product_id: parentProductId }, { parent_product_id: parentProductId }] };
     }
+    const results = await ProductReviewRepository.find({
+      query,
+      limit: limitItems,
+      skip: skipItems,
+      sort: {
+        createdAt: sort,
+      },
+      select: "-__v",
+      populate: [
+        {
+          path: "product_size",
+          select: "-_id -status",
+        },
+        {
+          path: "user",
+          select: "name",
+        },
+        {
+          path: "product_id",
+          select: "product_color product_name",
+          populate: {
+            path: "product_color",
+            select: "-_id -status -createdAt -updatedAt -__v",
+          },
+        },
+        {
+          path: "parent_product_id",
+          populate: {
+            path: "product_color",
+            select: "-_id -status -createdAt -updatedAt -__v",
+          },
+          select: "product_color product_name",
+        },
+      ],
+    });
 
     return results;
   };
